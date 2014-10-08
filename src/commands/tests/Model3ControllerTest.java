@@ -45,10 +45,10 @@ import em.EMAlgorithm;
 
 public class Model3ControllerTest {
 
-	public static String 						DATASETTESTPATH = "dataFiles/commands/allTurkTrain";
-	//public static String 						DATASETTESTPATH = "dataFiles/commands/allTurkTrainLimitedCommand";
-	//public static String 						DATASETTESTPATH = "dataFiles/commands/mySimpleSokoData";
-	public static String						MTDATASETPATH = "dataFiles/commands/allTurkSemanticLabeled";
+	public static String 						DATASETTESTPATH = "data/allTurkTrain";
+	//public static String 						DATASETTESTPATH = "data/allTurkTrainLimitedCommand";
+	//public static String 						DATASETTESTPATH = "data/mySimpleSokoData";
+	public static String						MTDATASETPATH = "data/allTurkSemanticLabeled";
 	
 	
 	/**

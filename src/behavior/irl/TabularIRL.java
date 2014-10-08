@@ -280,7 +280,10 @@ public class TabularIRL {
 			return st;
 		}
 
-		
+		@Override
+		public List<TransitionProbability> getTransitions(State s, String[] params) {
+			return this.deterministicTransition(s, params);
+		}
 	}
 	
 	
