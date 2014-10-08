@@ -1,0 +1,6 @@
+walk from orange room into beige room
+west,west,west
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,8,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,7,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,6,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,5,6

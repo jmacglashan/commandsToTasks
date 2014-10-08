@@ -730,7 +730,7 @@ public class Sokoban2Domain implements DomainGenerator {
 		s.addObject(b2);
 		setBlock(s, 1, 3, 2, "moon", "red");*/
 		
-		Visualizer v = Sokoban2Visualizer.getVisualizer("robotImages");
+		Visualizer v = Sokoban2Visualizer.getVisualizer("resources/robotImages");
 		VisualExplorer exp = new VisualExplorer(domain, v, s);
 		
 		exp.addKeyAction("w", ACTIONNORTH);

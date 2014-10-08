@@ -1,0 +1,8 @@
+move into green area and stop . 
+east,south,south,south,south
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,2,7
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,3,7
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,3,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,3,5
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,3,4
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,3,3

@@ -1,0 +1,10 @@
+go to orange room . 
+east,east,east,east,north,north,north
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,4,2
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,5,2
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,6,2
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,7,2
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,8,2
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,8,3
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,8,4
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 agent,8,5

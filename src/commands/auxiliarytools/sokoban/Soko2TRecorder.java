@@ -13,7 +13,7 @@ import domain.singleagent.sokoban2.Sokoban2Visualizer;
 
 public class Soko2TRecorder {
 
-	public final static String		pathToRobotImagesDirectory = "oomdpResearch/robotImages";
+	public final static String		pathToRobotImagesDirectory = "resources/robotImages";
 	
 	/**
 	 * @param args

@@ -1,0 +1,20 @@
+move from orange area to yellow area and push star onto green area
+west,west,west,north,north,north,west,south,south,east,south,west,north,west,south,south,south
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,8 agent,8,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,8 agent,7,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,8 agent,6,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,8 agent,5,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,8 agent,5,7
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,8 agent,5,8
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,8 agent,5,9
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,8 agent,4,9
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,7 agent,4,8
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,6 agent,4,7
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,6 agent,5,7
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,4,6 agent,5,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,3,6 agent,4,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,3,6 agent,4,7
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,3,6 agent,3,7
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,3,5 agent,3,6
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,3,4 agent,3,5
+room,5,0,10,6,4 room,10,6,10,10,4 room,1,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,12,0,3,3 agent,3,4
