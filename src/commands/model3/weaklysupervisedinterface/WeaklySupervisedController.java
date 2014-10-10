@@ -20,6 +20,13 @@ import logicalexpressions.PFAtom;
 import java.util.*;
 
 /**
+ * A controller for managing inference steps in a grounding language to reward function problem where the language
+ * model is specified by a {@link commands.model3.weaklysupervisedinterface.WeaklySupervisedLanguageModel}.
+ * This controller also provides the means to cache IRL results and load cached IRL results for increased reasoning speed
+ * using the method {@link #cacheIRLProbabilitiesToDisk(String, burlap.oomdp.auxiliary.StateParser)} and
+ * {@link #loadIRLProbabiltiesFromDisk(String, burlap.oomdp.auxiliary.StateParser)}, respectively.
+ *
+ *
  * @author James MacGlashan.
  */
 public class WeaklySupervisedController {

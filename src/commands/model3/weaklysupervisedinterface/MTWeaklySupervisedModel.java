@@ -17,6 +17,10 @@ import logicalexpressions.PFAtom;
 import java.util.*;
 
 /**
+ * An IBM Model 2 Machine Translate language model that is trained through weak supervision. This class
+ * first converts the logical expressions into a machine language expression that is deterministically generated.
+ * This process also requires wrapping the results into a new dataset that is made up of {@link commands.model3.mt.em.WeightedMTInstance}
+ * objects. The number of EM iterations when training is performed is a required parameter.
  * @author James MacGlashan.
  */
 public class MTWeaklySupervisedModel implements WeaklySupervisedLanguageModel{
@@ -32,7 +36,14 @@ public class MTWeaklySupervisedModel implements WeaklySupervisedLanguageModel{
 	protected int numEMIterations;
 
 
-
+	/**
+	 * Initializes. The {@link commands.model3.weaklysupervisedinterface.WeaklySupervisedController} is required
+	 * because the MT model will add a module to the controller's {@link generativemodel.GenerativeModel} to perform
+	 * inference.
+	 * @param controller the controller with the {@link generativemodel.GenerativeModel} that will be extended
+	 * @param tokenizer a {@link commands.model3.mt.Tokenizer} for tokenizing input strings.
+	 * @param numEMIterations the number of trianing EM iterations that will be performed when the {@link #learnFromDataset(java.util.List)} method is called.
+	 */
 	public MTWeaklySupervisedModel(WeaklySupervisedController controller, Tokenizer tokenizer, int numEMIterations){
 
 		this.controller = controller;
@@ -86,7 +97,13 @@ public class MTWeaklySupervisedModel implements WeaklySupervisedLanguageModel{
 	}
 
 
-
+	/**
+	 * Returns the {@link commands.model3.mt.em.WeightedMTInstance} dataset wrapper that our MT model prefers. This dataset
+	 * requires natural language expressions and all possible machine language expressions that are paired with it and their weight.
+	 * This means the logical expressions are converted deterministically to machine language expressions.
+	 * @param wsDataset the input weakly supervised dataset consisting of logical expression, natural language expressions, and their weakly supervised weight.
+	 * @return the {@link commands.model3.mt.em.WeightedMTInstance} dataset wrapper
+	 */
 	protected List<WeightedMTInstance> generateMTDataset(List<WeaklySupervisedTrainingInstance> wsDataset){
 
 		List<WeightedMTInstance> mtDataset = new ArrayList<WeightedMTInstance>(wsDataset.size());
@@ -110,7 +127,14 @@ public class MTWeaklySupervisedModel implements WeaklySupervisedLanguageModel{
 	}
 
 
-
+	/**
+	 * Takes task and binding constrained logical expressions and turns it into a machine language expression.
+	 * This method assumes that the children of the logical expressions are terminal {@link logicalexpressions.PFAtom}
+	 * objects.
+	 * @param liftedTask the lifted task
+	 * @param bindingConstraints the object binding constraints
+	 * @return the machine language expression.
+	 */
 	protected String getMachineLanguageString(LogicalExpression liftedTask, LogicalExpression bindingConstraints){
 
 		//assume flat list of PF Atoms for now
@@ -189,6 +213,12 @@ public class MTWeaklySupervisedModel implements WeaklySupervisedLanguageModel{
 	}
 
 
+	/**
+	 * Extracts the {@link burlap.oomdp.core.GroundedProp} objects from the logical expression by assuming that
+	 * each child is a {@link logicalexpressions.PFAtom}.
+	 * @param exp the input {@link logicalexpressions.LogicalExpression}
+	 * @return all {@link burlap.oomdp.core.GroundedProp} objects.
+	 */
 	protected List<GroundedProp> extractGPs(LogicalExpression exp){
 		List<GroundedProp> gps = new ArrayList<GroundedProp>(exp.getChildExpressions().size());
 		for(LogicalExpression atom : exp.getChildExpressions()){
