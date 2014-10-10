@@ -65,8 +65,8 @@ public class Model3ControllerExpertData {
 
 		//uniformTest();
 		//getUniqueCommands(DATASETTESTPATH);
-		execptedUniformRandom(DATASETTESTPATH);
-		//trajectoryTrainingTest(DATASETTESTPATH, CACHEPATH);
+		//execptedUniformRandom(DATASETTESTPATH);
+		trajectoryTrainingTest(DATASETTESTPATH, CACHEPATH);
 		//verifyIRL(DATASETTESTPATH, CACHEPATH);
 		//verifyIRLSpecific(DATASETTESTPATH);
 		//verifyRFLabels(DATASETTESTPATH);
