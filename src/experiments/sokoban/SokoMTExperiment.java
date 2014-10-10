@@ -27,7 +27,7 @@ public class SokoMTExperiment {
 		//AMT experiment only uses blockToRoom and agentToRoom, so first parameter is false
 		//AMT dataset was created with an old version of Sokoban domain, so second parameter is true to translate
 		//We will use the full AMT dataset rather than the limited one
-		//trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET);
+		trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET);
 
 
 		/////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ public class SokoMTExperiment {
 		/////////////////////////////////////////////////////////////
 		// FOR AMT FULL DATASET LEAVE ONE OUT TEST USE THE BELOW
 		////////////////////////////////////////////////////////////
-		LOOTest(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache");
+		//LOOTest(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache");
 
 
 	}
