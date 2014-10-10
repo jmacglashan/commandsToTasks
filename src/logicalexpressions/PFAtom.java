@@ -13,6 +13,10 @@ public class PFAtom extends LogicalExpression{
 
 	protected GroundedProp gp;
 
+	/**
+	 * Instantiates with the {@link burlap.oomdp.core.GroundedProp} that defines this {@link logicalexpressions.PFAtom}.
+	 * @param gp the {@link burlap.oomdp.core.GroundedProp} that defines this {@link logicalexpressions.PFAtom}.
+	 */
 	public PFAtom(GroundedProp gp){
 		this.gp = gp;
 		String [] gpParamClasses = this.gp.pf.getParameterClasses();
@@ -30,10 +34,19 @@ public class PFAtom extends LogicalExpression{
 		// Blank constructor for use in parsing from knowledge base.
 	}
 
+	/**
+	 * Gets the {@link burlap.oomdp.core.GroundedProp} defining this {@link logicalexpressions.PFAtom}.
+	 * @return the {@link burlap.oomdp.core.GroundedProp} defining this {@link logicalexpressions.PFAtom}.
+	 */
 	public GroundedProp getGroundedProp(){
 		return this.gp;
 	}
 
+
+	/**
+	 * Sets the {@link burlap.oomdp.core.GroundedProp} defining this {@link logicalexpressions.PFAtom}.
+	 * @param gp the {@link burlap.oomdp.core.GroundedProp} defining this {@link logicalexpressions.PFAtom}.
+	 */
 	public void setGroundedProp(GroundedProp gp){
 		this.gp = gp;
 	}
@@ -57,6 +70,7 @@ public class PFAtom extends LogicalExpression{
 		}
 	}
 
+	@Override
 	public String toString() {
 		return this.gp.pf.getClassName();
 	}

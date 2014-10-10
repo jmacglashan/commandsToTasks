@@ -63,6 +63,7 @@ public class Conjunction extends LogicalExpression{
 		//nothing necssary, not an atomic expression
 	}
 
+	@Override
 	public String toString() {
 		String result = "";
 

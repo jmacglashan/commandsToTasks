@@ -8,6 +8,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ *
+ * A logical expression of OO-MDP propositional functions. This is the super abstract class that all
+ * specific expression derive. It recursively consists of a set of child logical expressions whose relationship
+ * is defined by the instance of the Logical Expression. For example, a {@link logicalexpressions.Conjunction}
+ * subclass means that each of the child expressions are assume to be "anded" together, but may recursively
+ * decompose themselves into complex non-terminal logical expressions.
+ * <p/>
+ * At the lowest level, you have the terminal logical expression {@link logicalexpressions.PFAtom} which
+ * is defined by a single OO-MDP propositional function and variables (or object constants) on which it operates) using
+ * a {@link burlap.oomdp.core.GroundedProp} reference.
+ * <p/>
+ * Each Logical expression maintains a map of each variable referenced somewhere in its child expressions (it
+ * works recursively so if a child expression is a non-terminal it will know about the variables in its decedents)
+ * to the OO-MDP object class type to which that variable must belong. You can retrieve this map with
+ * the method {@link #getVariableAndTypes()}.
+ *
+ *
  * @author James MacGlashan.
  */
 public abstract class LogicalExpression {
@@ -19,24 +36,53 @@ public abstract class LogicalExpression {
 
 
 	/**
-	 * Duplicates should not have a parentExpression
-	 * @return
+	 * Creates a new instance of this Logical expression *without* a reference to a parent expression.
+	 * @return a duplicated version of this LogicalExpression instance.
 	 */
 	public abstract LogicalExpression duplicate();
+
+	/**
+	 * Evaluates whether this logical expression is true in the given OO-MDP {@link burlap.oomdp.core.State}.
+	 * @param s that {@link burlap.oomdp.core.State} in which to evaluate this expression.
+	 * @return true if this expression is true in s; false otherwise.
+	 */
 	public abstract boolean evaluateIn(State s);
+
+	/**
+	 * Find all variables in this expression non-recursively with name in the keyset of the provided {@link java.util.Map}
+	 * and change its name to the varibale name in the corresponding value of the provided {@link java.util.Map}.
+	 * This method only needs to do anything for terminal expressions (i.e. the {@link logicalexpressions.PFAtom}).
+	 * @param fromToVariableMap the variable rename {@link java.util.Map}
+	 */
 	protected abstract void remapVariablesInThisExpression(Map<String, String> fromToVariableMap);
 
 
+	/**
+	 * First creates a duplicate of this logical expression and then recursively remaps its variable names according to the
+	 * entries in the provided {@link java.util.Map}.
+	 * @param fromToVariableMap the variable rename {@link java.util.Map}
+	 * @return a new {@link logicalexpressions.LogicalExpression} with its variable names remapped.
+	 */
 	public LogicalExpression duplicateWithVariableRemap(Map<String, String> fromToVariableMap){
 		LogicalExpression copy = this.duplicate();
 		copy.remapVariables(fromToVariableMap);
 		return copy;
 	}
 
+	/**
+	 * Returns each variable expressed in this logical expression (found recursively) and returns a map from
+	 * their name to the OO-MDP object class to which the variable is typed.
+	 * @return a {@link java.util.Map} from variable names to their OO-MDP object class type.
+	 */
 	public Map<String, String> getVariableAndTypes(){
 		return this.variablesAndTypes;
 	}
 
+
+	/**
+	 * Returns the parent logical expression that holds this expression. Null if there is no parent.
+	 * @return the parent logical expression that holds this expression. Null if there is no parent.
+	 */
 	public LogicalExpression getParentExpression(){
 		return this.parentExpression;
 	}
@@ -48,7 +94,23 @@ public abstract class LogicalExpression {
 		}
 	}
 
-	public void addVariable(String variableName, String variableType){
+	/**
+	 * Sets the name of this logical expression which is only used for debugging purposes.
+	 * @param name the name of this logical expression
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	/**
+	 * Returns all logical expression children of this expression.
+	 * @return all logical expression children of this expression.
+	 */
+	public List<LogicalExpression> getChildExpressions(){ return this.childExpressions; }
+
+
+	protected void addVariable(String variableName, String variableType){
 
 		if(this.variablesAndTypes.containsKey(variableName)){
 			throw new VariableAlreadyInUseException(variableName);
@@ -61,7 +123,11 @@ public abstract class LogicalExpression {
 	}
 
 
-	public void remapVariables(Map<String, String> fromToVariableMap){
+	/**
+	 * Recursively remaps variable names telling its parent about the changes.
+	 * @param fromToVariableMap the current variable names and their new target name
+	 */
+	protected void remapVariables(Map<String, String> fromToVariableMap){
 		this.remapVariablesInVariableAndTypeMap(fromToVariableMap);
 		this.remapVariablesInThisExpression(fromToVariableMap);
 		this.remapVariablesUpStream(fromToVariableMap);
@@ -122,26 +188,6 @@ public abstract class LogicalExpression {
 	}
 
 
-	// For debugging purposes
-	public void setName(String name) {
-		this.name = name;
-	}
 
-
-	@Override
-	public String toString() {
-		String result = "";
-		for (LogicalExpression child : this.childExpressions) {
-			result += child.toString();
-		}
-		return result;
-	}
-
-	public void load(String logicalExpressionString) {
-
-	}
-
-
-	public List<LogicalExpression> getChildExpressions(){ return this.childExpressions; }
 
 }

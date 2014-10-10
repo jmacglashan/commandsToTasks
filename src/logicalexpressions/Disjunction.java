@@ -62,6 +62,7 @@ public class Disjunction extends LogicalExpression{
 		//nothing necssary, not an atomic expression
 	}
 
+	@Override
 	public String toString() {
 		String result = "";
 

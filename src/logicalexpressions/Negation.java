@@ -13,6 +13,10 @@ public class Negation extends LogicalExpression{
 		// Empty constructor in case child is not known yet (as in reading in from a file)
 	}
 
+	/**
+	 * Instantiates a negation of the provided expression.
+	 * @param childExpression the expression to negate.
+	 */
 	public Negation(LogicalExpression childExpression) {
 		this.childExpressions.add(childExpression);
 	}
@@ -33,10 +37,15 @@ public class Negation extends LogicalExpression{
 		// Nothing necessary, not an atomic expression
 	}
 
+	/**
+	 * Sets the single child expression that is being negated.
+	 * @param child the child expression that is being negated.
+	 */
 	public void setChild(LogicalExpression child) {
 		this.childExpressions.add(child);
 	}
 
+	@Override
 	public String toString() {
 
 		LogicalExpression c = this.childExpressions.get(0);
