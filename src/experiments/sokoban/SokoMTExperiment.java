@@ -63,7 +63,7 @@ public class SokoMTExperiment {
 		WeaklySupervisedController controller = constructor.generateNewController();
 
 		//instantiate our MT language model
-		createAndAddMTModel(controller);
+		createAndAddLanguageModel(controller);
 
 		//get training data
 		List<TrainingElement> dataset = constructor.getTrainingDataset(pathToDataset);
@@ -98,7 +98,7 @@ public class SokoMTExperiment {
 		WeaklySupervisedController controller = constructor.generateNewController();
 
 		//instantiate our MT language model
-		createAndAddMTModel(controller);
+		createAndAddLanguageModel(controller);
 
 		//get training data
 		List<TrainingElement> dataset = constructor.getTrainingDataset(pathToDataset);
@@ -152,7 +152,7 @@ public class SokoMTExperiment {
 			WeaklySupervisedController controller = constructor.generateNewController();
 
 			//instantiate our MT language model
-			createAndAddMTModel(controller);
+			createAndAddLanguageModel(controller);
 
 			//load our IRL trajectory cache for fast IRL
 			controller.loadIRLProbabiltiesFromDisk(pathToIRLCache, constructor.cacheStateParser);
@@ -204,7 +204,7 @@ public class SokoMTExperiment {
 		WeaklySupervisedController controller = constructor.generateNewController();
 
 		//instantiate our MT language model
-		createAndAddMTModel(controller);
+		createAndAddLanguageModel(controller);
 
 		//get training data
 		List<TrainingElement> dataset = constructor.getTrainingDataset(pathToDataset);
@@ -216,6 +216,11 @@ public class SokoMTExperiment {
 
 	}
 
+
+
+	public static void createAndAddLanguageModel(WeaklySupervisedController controller){
+		createAndAddMTModel(controller);
+	}
 
 	public static void createAndAddMTModel(WeaklySupervisedController controller){
 		//setup language model
