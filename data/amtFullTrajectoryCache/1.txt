@@ -1,0 +1,14 @@
+6.063909110113302E-93
+agentInRoom(agent0, room0) 
+west,west,west,north,north,north,north,east,east,east
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,4,6 agent,6,2
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,4,6 agent,5,2
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,4,6 agent,4,2
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,4,6 agent,3,2
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,4,6 agent,3,3
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,4,6 agent,3,4
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,4,6 agent,3,5
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,4,6 agent,3,6
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,5,6 agent,4,6
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,6,6 agent,5,6
+room,1,0,10,6,4 room,3,6,10,10,4 room,0,0,4,10,0 door,3,4,3,3 door,8,4,8,3 door,5,6,6,6 block,4,0,7,6 agent,6,6
