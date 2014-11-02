@@ -1,7 +1,6 @@
 package commands.model3.weaklysupervisedinterface;
 
 import logicalexpressions.LogicalExpression;
-import sun.rmi.runtime.Log;
 
 /**
  * @author James MacGlashan.

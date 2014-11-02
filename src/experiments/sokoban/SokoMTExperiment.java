@@ -5,6 +5,8 @@ import commands.model3.TaskModule;
 import commands.model3.mt.Tokenizer;
 import commands.model3.weaklysupervisedinterface.MTWeaklySupervisedModel;
 import commands.model3.weaklysupervisedinterface.WeaklySupervisedController;
+import commands.model3.weaklysupervisedinterface.WeaklySupervisedLanguageModel;
+import commands.scfgmodel.SCFGMTWeaklySupervisedModel;
 import generativemodel.GMQueryResult;
 import generativemodel.GenerativeModel;
 
@@ -17,37 +19,52 @@ import java.util.Map;
  */
 public class SokoMTExperiment {
 
-	public static void main(String [] args){
+	public static final String IBM_MODEL = "IBM_MT";
+	public static final String SCFG_MODEL = "SCFG_MT";
 
+	public static void main(String [] args){
+		
+		String mtModel = IBM_MODEL; // Run IBM Model by default
+		// Check if we need to run scfg model
+		if(args.length > 0) {
+			
+			if(args[0].equals(SCFG_MODEL)) {
+				mtModel = SCFG_MODEL;
+			}
+			else {
+				System.out.println("Invalid option. Please use \""+SCFG_MODEL+"\" to run SCFG model");
+				return;
+			}
+		}
 		/////////////////////////////////////////////////////////////
 		// FOR AMT FULL DATASET TRAINING TEST USE THE BELOW
 		////////////////////////////////////////////////////////////
-		trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET);
+		trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET, mtModel);
 
 
 		/////////////////////////////////////////////////////////////
 		// FOR CHACHING AMT FULL DATASET IRL USE THE BELOW (create directory on file system first)
 		////////////////////////////////////////////////////////////
-		//cacheIRLResultsFor(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache");
+		//cacheIRLResultsFor(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache", mtModel);
 
 
 		/////////////////////////////////////////////////////////////
 		// FOR AMT FULL DATASET TRAINING TEST USE THE BELOW
 		////////////////////////////////////////////////////////////
-		//trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache");
+		//trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache", mtModel);
 
 
 		/////////////////////////////////////////////////////////////
 		// FOR AMT FULL DATASET LEAVE ONE OUT TEST USE THE BELOW
 		////////////////////////////////////////////////////////////
-		//LOOTest(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache");
+		//LOOTest(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache", mtModel);
 
 
 	}
 
 
 
-	public static void trainingTest(boolean isAMT, String pathToDataset){
+	public static void trainingTest(boolean isAMT, String pathToDataset, String mtModel){
 
 		//sokoban training task definition
 		SokobanControllerConstructor constructor;
@@ -63,7 +80,7 @@ public class SokoMTExperiment {
 		WeaklySupervisedController controller = constructor.generateNewController();
 
 		//instantiate our MT language model
-		createAndAddLanguageModel(controller);
+		createAndAddLanguageModel(controller, mtModel);
 
 		//get training data
 		List<TrainingElement> dataset = constructor.getTrainingDataset(pathToDataset);
@@ -83,7 +100,7 @@ public class SokoMTExperiment {
 		}
 	}
 
-	public static void trainingTest(boolean isAMT, String pathToDataset, String pathToIRLCache){
+	public static void trainingTest(boolean isAMT, String pathToDataset, String pathToIRLCache, String mtModel){
 
 		//sokoban training task definition
 		SokobanControllerConstructor constructor;
@@ -98,7 +115,7 @@ public class SokoMTExperiment {
 		WeaklySupervisedController controller = constructor.generateNewController();
 
 		//instantiate our MT language model
-		createAndAddLanguageModel(controller);
+		createAndAddLanguageModel(controller, mtModel);
 
 		//get training data
 		List<TrainingElement> dataset = constructor.getTrainingDataset(pathToDataset);
@@ -122,7 +139,7 @@ public class SokoMTExperiment {
 	}
 
 
-	public static void LOOTest(boolean isAMT, String pathToDataset, String pathToIRLCache){
+	public static void LOOTest(boolean isAMT, String pathToDataset, String pathToIRLCache, String mtModel){
 
 		//sokoban training task definition
 		SokobanControllerConstructor constructor;
@@ -152,7 +169,7 @@ public class SokoMTExperiment {
 			WeaklySupervisedController controller = constructor.generateNewController();
 
 			//instantiate our MT language model
-			createAndAddLanguageModel(controller);
+			createAndAddLanguageModel(controller, mtModel);
 
 			//load our IRL trajectory cache for fast IRL
 			controller.loadIRLProbabiltiesFromDisk(pathToIRLCache, constructor.cacheStateParser);
@@ -189,7 +206,7 @@ public class SokoMTExperiment {
 
 
 
-	public static void cacheIRLResultsFor(boolean isAMT, String pathToDataset, String pathToCacheDirectory){
+	public static void cacheIRLResultsFor(boolean isAMT, String pathToDataset, String pathToCacheDirectory, String mtModel){
 
 		//sokoban training task definition
 		SokobanControllerConstructor constructor;
@@ -204,7 +221,7 @@ public class SokoMTExperiment {
 		WeaklySupervisedController controller = constructor.generateNewController();
 
 		//instantiate our MT language model
-		createAndAddLanguageModel(controller);
+		createAndAddLanguageModel(controller, mtModel);
 
 		//get training data
 		List<TrainingElement> dataset = constructor.getTrainingDataset(pathToDataset);
@@ -216,17 +233,22 @@ public class SokoMTExperiment {
 
 	}
 
-
-
-	public static void createAndAddLanguageModel(WeaklySupervisedController controller){
-		createAndAddMTModel(controller);
+	public static void createAndAddLanguageModel(WeaklySupervisedController controller, String mtModel){
+		createAndAddMTModel(controller, mtModel);
 	}
 
-	public static void createAndAddMTModel(WeaklySupervisedController controller){
+	public static void createAndAddMTModel(WeaklySupervisedController controller, String mtModel){
 		//setup language model
 		Tokenizer tokenizer = new Tokenizer(true, true);
 		tokenizer.addDelimiter("-");
-		MTWeaklySupervisedModel model = new MTWeaklySupervisedModel(controller, tokenizer, 10);
+		
+		WeaklySupervisedLanguageModel model = null;
+		switch(mtModel) {
+		case IBM_MODEL: model = new MTWeaklySupervisedModel(controller, tokenizer, 10); break;
+		case SCFG_MODEL: model = new SCFGMTWeaklySupervisedModel(controller, tokenizer, 10); break;
+		default : // IBM Model
+			model = new MTWeaklySupervisedModel(controller, tokenizer, 10);
+		}
 
 		//set our controller to use the MT model we created
 		controller.setLanguageModel(model);
