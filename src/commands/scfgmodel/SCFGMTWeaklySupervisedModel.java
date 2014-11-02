@@ -27,11 +27,11 @@ import commands.model3.weaklysupervisedinterface.WeaklySupervisedLanguageModel;
 import commands.model3.weaklysupervisedinterface.WeaklySupervisedTrainingInstance;
 
 /**
- * An IBM Model 2 Machine Translate language model that is trained through weak supervision. This class
+ * An SCFG Machine Translate language model that is trained through weak supervision. This class
  * first converts the logical expressions into a machine language expression that is deterministically generated.
  * This process also requires wrapping the results into a new dataset that is made up of {@link commands.model3.mt.em.WeightedMTInstance}
  * objects. The number of EM iterations when training is performed is a required parameter.
- * @author James MacGlashan.
+ * @author Abhinav Bajaj
  */
 public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageModel{
 
@@ -57,7 +57,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 	 * inference.
 	 * @param controller the controller with the {@link generativemodel.GenerativeModel} that will be extended
 	 * @param tokenizer a {@link commands.model3.mt.Tokenizer} for tokenizing input strings.
-	 * @param numEMIterations the number of trianing EM iterations that will be performed when the {@link #learnFromDataset(java.util.List)} method is called.
+	 * @param numEMIterations the number of training EM iterations that will be performed when the {@link #learnFromDataset(java.util.List)} method is called.
 	 */
 	public SCFGMTWeaklySupervisedModel(WeaklySupervisedController controller, Tokenizer tokenizer, int numEMIterations){
 
