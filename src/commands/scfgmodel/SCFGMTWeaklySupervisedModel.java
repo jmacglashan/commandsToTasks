@@ -1,14 +1,14 @@
 package commands.scfgmodel;
 
-import generativemodel.GenerativeModel;
 import generativemodel.RVariable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,10 +16,8 @@ import java.util.Set;
 import logicalexpressions.LogicalExpression;
 import logicalexpressions.PFAtom;
 import burlap.oomdp.core.GroundedProp;
-import commands.model3.TaskModule;
-import commands.model3.mt.MTModule;
+
 import commands.model3.mt.Tokenizer;
-import commands.model3.mt.em.MTEMModule;
 import commands.model3.mt.em.WeightedMTInstance;
 import commands.model3.mt.em.WeightedMTInstance.WeightedSemanticCommandPair;
 import commands.model3.weaklysupervisedinterface.WeaklySupervisedController;
@@ -35,13 +33,15 @@ import commands.model3.weaklysupervisedinterface.WeaklySupervisedTrainingInstanc
  */
 public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageModel{
 
-	public static final String		LANGMODNAME = "langMod";
-	public static final String		NEW_LINE 	= "\n";
+	public static final String		LANGMODNAME 			= "langMod";
+	public static final String		NEW_LINE 				= "\n";
 	
-	public static final String		COMM_FILE_NAME 	= "dataset";
-	public static final String		SEM_COMM_FILE_EXT 	= ".sem";
-	public static final String		NAT_COMM_FILE_EXT 	= ".nat";
-
+	public static final String		COMM_FILE_NAME 			= "dataset";
+	public static final String		SEM_COMM_FILE_EXT 		= ".sem";
+	public static final String		NAT_COMM_FILE_EXT 		= ".nat";
+	
+	public static final String		MOSES_SCRIPT 			= "./runMoses.sh";
+	public static final String		MOSES_SCRIPT_OUTPUT 	= "moses.out";
 
 	protected WeaklySupervisedController controller;
 	protected Tokenizer tokenizer;
@@ -86,14 +86,13 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 
 		GMQueryResult langQR = gm.getProb(nCommandQuery, true);
 		double p = langQR.probability;*/
+		//System.out.println("Command -- > " + command);
 
 		return 0.5;
 	}
 
 	@Override
 	public void learnFromDataset(List<WeaklySupervisedTrainingInstance> dataset) {
-
-		GenerativeModel gm = this.controller.getGM();
 
 		List<WeightedMTInstance> mtDataset = this.generateMTDataset(dataset);
 
@@ -128,23 +127,42 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 			if(semCommWriter!=null)
 				semCommWriter.close();
 		}
-		Set<String> semanticWords = new HashSet<String>();
-		Set<String> naturalWords = new HashSet<String>();
-
-		int maxSemanticCommandLength = getSemanticWordsFromMTDataset(mtDataset, semanticWords);
-		int maxNaturalCommandLength = getNaturalWordsFromMTDataset(mtDataset, naturalWords);
-
-		MTModule langMod = new MTModule(LANGMODNAME, gm.getRVarWithName(TaskModule.LIFTEDRFNAME), gm.getRVarWithName(TaskModule.BINDINGNAME),
-				semanticWords, naturalWords, maxSemanticCommandLength, maxNaturalCommandLength, tokenizer);
-
-		gm.addGMModule(langMod);
-
-		this.naturalCommandVariable = gm.getRVarWithName(MTModule.NNAME);
-
-		MTEMModule mtem = new MTEMModule(mtDataset, gm);
-		mtem.runEMManually(this.numEMIterations);
+		System.out.println("Created the nat and sem files");
+		
+		// RUN MOSES
+		runMoses();
+		
+		// Create a HashMap of command,prob values
 	}
 
+	private boolean runMoses() {
+		ProcessBuilder processBuilder = new ProcessBuilder(MOSES_SCRIPT);
+		//processBuilder.directory(new File("D:/"));
+		File log = new File(MOSES_SCRIPT_OUTPUT);
+		processBuilder.redirectErrorStream(true);
+		processBuilder.redirectOutput(Redirect.to(log));
+		Process p;
+		try {
+			p = processBuilder.start();
+			p.waitFor();
+
+			System.out.println("Moses Execution Complete");
+			return true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+
+	}
+	
+	private boolean createCommandProbMap() {
+		
+		return true;
+	}
 
 	/**
 	 * Returns the {@link commands.model3.mt.em.WeightedMTInstance} dataset wrapper that our MT model prefers. This dataset
