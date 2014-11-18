@@ -100,8 +100,8 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 		PrintWriter natCommWriter = null;
 		PrintWriter semCommWriter = null;
 		try {
-			File natCommFile = new File(COMM_FILE_NAME+NAT_COMM_FILE_EXT);
-			File semCommFile = new File(COMM_FILE_NAME+SEM_COMM_FILE_EXT);
+			File natCommFile = new File("moses-training", COMM_FILE_NAME+NAT_COMM_FILE_EXT);
+			File semCommFile = new File("moses-training", COMM_FILE_NAME+SEM_COMM_FILE_EXT);
 			if(natCommFile.exists())
 				natCommFile.delete();
 			if(semCommFile.exists())
@@ -143,6 +143,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 		processBuilder.redirectOutput(Redirect.to(log));
 		Process p;
 		try {
+			System.out.println("Starting Moses Execution");
 			p = processBuilder.start();
 			p.waitFor();
 

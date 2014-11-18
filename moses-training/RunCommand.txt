@@ -1,0 +1,1 @@
+/export/projects/nlp/BOLT-MT/backup/tools/MOSES/moses-2010-08-13/moses-cmd/src/moses -f moses.ini < in > out
