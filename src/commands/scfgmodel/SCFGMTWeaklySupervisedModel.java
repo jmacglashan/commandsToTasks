@@ -2,8 +2,10 @@ package commands.scfgmodel;
 
 import generativemodel.RVariable;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.ProcessBuilder.Redirect;
@@ -35,13 +37,18 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 
 	public static final String		LANGMODNAME 			= "langMod";
 	public static final String		NEW_LINE 				= "\n";
-	
+
+	public static final String		MOSES_TRAIN_DIR			= "moses-training";
 	public static final String		COMM_FILE_NAME 			= "dataset";
 	public static final String		SEM_COMM_FILE_EXT 		= ".sem";
 	public static final String		NAT_COMM_FILE_EXT 		= ".nat";
-	
+	public static final String		TEST_TRANLATION_FILE	= "test.test";
+
 	public static final String		MOSES_SCRIPT 			= "./runMoses.sh";
+	public static final String		MOSES_TRANS_SCRIPT 		= "./runMosesTranslation.sh";
 	public static final String		MOSES_SCRIPT_OUTPUT 	= "moses.out";
+	public static final String		MOSES_TRANS_OUPTUT_DIR		= "/export/projects/nlpeducation/nlpcommands/mosesmodel/datastore/moses.2012-02-06/training/model";
+	public static final String		MOSES_TRANS_SCORE_FILE		= "scores.out";
 
 	protected WeaklySupervisedController controller;
 	protected Tokenizer tokenizer;
@@ -66,29 +73,89 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 		this.numEMIterations = numEMIterations;
 
 	}
+	
+	
+	public static void main(String args[]){
+		String line = "0 ||| agentInRoom agent room .  ||| d: 0 -0.336472 0 0 -0.336472 0 0 lm: -43.3132 -41.4966 w: -4 tm: -7.81035 -28.8375 -1.09861 -3.22836 0.999896 ||| -125.399";
+		String parts[] = line.split("\\|\\|\\|");
+		for(String part : parts)
+		{
+			System.out.println("==" +part +"+++");
+		}
+		System.out.println(parts[1].trim());
+		System.out.println(parts[parts.length-1].trim());
+	}
 
 	@Override
 	public double probabilityOfCommand(LogicalExpression liftedTask, LogicalExpression bindingConstraints, String command) {
+		System.out.println("Command -- > " + command);
 
-		/*GenerativeModel gm = this.controller.getGM();
-		TaskModule.LiftedVarValue liftedTaskVal = new TaskModule.LiftedVarValue(gm.getRVarWithName(TaskModule.LIFTEDRFNAME), this.extractGPs(liftedTask));
-		//System.out.println("=========== Listed Task Val");
-		//System.out.println(liftedTaskVal.toString());
-		TaskModule.LiftedVarValue bindingConstraintsVal = new TaskModule.LiftedVarValue(gm.getRVarWithName(TaskModule.BINDINGNAME), this.extractGPs(bindingConstraints));
-		//System.out.println("=========== Binding Constraints");
-		//System.out.println(bindingConstraintsVal.toString());
-		StringValue sVal = new StringValue(command, this.naturalCommandVariable);
+		// Create the test.test file
+		PrintWriter testWriter = null;
+		try {
+			File natCommFile = new File(MOSES_TRAIN_DIR, TEST_TRANLATION_FILE);
+			if(natCommFile.exists())
+				natCommFile.delete();
 
-		GMQuery nCommandQuery = new GMQuery();
-		nCommandQuery.addQuery(sVal);
-		nCommandQuery.addCondition(liftedTaskVal);
-		nCommandQuery.addCondition(bindingConstraintsVal);
+			testWriter = new PrintWriter(natCommFile);
+			testWriter.write(command.replace(".","").trim() + NEW_LINE);
+			testWriter.close();
 
-		GMQueryResult langQR = gm.getProb(nCommandQuery, true);
-		double p = langQR.probability;*/
-		//System.out.println("Command -- > " + command);
+			// call moses transation
+			runMoses(MOSES_TRANS_SCRIPT);
 
-		return 0.5;
+			String machineLanguage = this.getMachineLanguageString(liftedTask, bindingConstraints);
+			System.out.println("Machine -> " + machineLanguage);
+
+			// Load Moses output
+			return loadMosesOutput(machineLanguage);
+			// Calculate probability score
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.exit(-1);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+			
+		}
+		finally {
+			if(testWriter!=null)
+				testWriter.close();
+		}
+		return 0;
+	}
+
+	private double loadMosesOutput(String machineLanguage) throws IOException {
+
+		BufferedReader br = null;
+
+		try {
+
+			String line;
+
+			br = new BufferedReader(new FileReader(new File(MOSES_TRANS_OUPTUT_DIR, MOSES_TRANS_SCORE_FILE)));
+			while ((line = br.readLine()) != null) {
+				//System.out.println(line);
+				
+				String parts[] = line.split("\\|\\|\\|");
+				String semComm = parts[1].trim();
+				//System.out.println(semComm);
+				String score = parts[parts.length-1];
+				//System.out.println(score);
+				if(semComm.equals(machineLanguage)) {
+					return Math.exp(Double.parseDouble(score));
+				}
+			}
+			return 0.0;
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			if (br != null)
+				br.close();
+		}
 	}
 
 	@Override
@@ -100,13 +167,13 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 		PrintWriter natCommWriter = null;
 		PrintWriter semCommWriter = null;
 		try {
-			File natCommFile = new File("moses-training", COMM_FILE_NAME+NAT_COMM_FILE_EXT);
-			File semCommFile = new File("moses-training", COMM_FILE_NAME+SEM_COMM_FILE_EXT);
+			File natCommFile = new File(MOSES_TRAIN_DIR, COMM_FILE_NAME+NAT_COMM_FILE_EXT);
+			File semCommFile = new File(MOSES_TRAIN_DIR, COMM_FILE_NAME+SEM_COMM_FILE_EXT);
 			if(natCommFile.exists())
 				natCommFile.delete();
 			if(semCommFile.exists())
 				semCommFile.delete();
-			
+
 			natCommWriter = new PrintWriter(natCommFile);
 			semCommWriter = new PrintWriter(semCommFile);
 
@@ -128,26 +195,24 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 				semCommWriter.close();
 		}
 		System.out.println("Created the nat and sem files");
-		
+
 		// RUN MOSES
-		runMoses();
-		
-		// Create a HashMap of command,prob values
+		runMoses(MOSES_SCRIPT);
 	}
 
-	private boolean runMoses() {
-		ProcessBuilder processBuilder = new ProcessBuilder(MOSES_SCRIPT);
+	private boolean runMoses(String script) {
+		ProcessBuilder processBuilder = new ProcessBuilder(script);
 		//processBuilder.directory(new File("D:/"));
 		File log = new File(MOSES_SCRIPT_OUTPUT);
 		processBuilder.redirectErrorStream(true);
 		processBuilder.redirectOutput(Redirect.to(log));
 		Process p;
 		try {
-			System.out.println("Starting Moses Execution");
+			System.out.println("Starting "+script+" Execution");
 			p = processBuilder.start();
 			p.waitFor();
 
-			System.out.println("Moses Execution Complete");
+			System.out.println("Execution Complete");
 			return true;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -158,11 +223,6 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 		}
 		return false;
 
-	}
-	
-	private boolean createCommandProbMap() {
-		
-		return true;
 	}
 
 	/**
