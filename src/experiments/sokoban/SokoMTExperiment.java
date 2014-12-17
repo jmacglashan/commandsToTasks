@@ -1,5 +1,14 @@
 package experiments.sokoban;
 
+import generativemodel.GMQueryResult;
+import generativemodel.GenerativeModel;
+import generativemodel.RVariable;
+import generativemodel.RVariableValue;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import commands.data.TrainingElement;
 import commands.model3.TaskModule;
 import commands.model3.mt.Tokenizer;
@@ -7,12 +16,6 @@ import commands.model3.weaklysupervisedinterface.MTWeaklySupervisedModel;
 import commands.model3.weaklysupervisedinterface.WeaklySupervisedController;
 import commands.model3.weaklysupervisedinterface.WeaklySupervisedLanguageModel;
 import commands.scfgmodel.SCFGMTWeaklySupervisedModel;
-import generativemodel.GMQueryResult;
-import generativemodel.GenerativeModel;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author James MacGlashan.
@@ -23,11 +26,11 @@ public class SokoMTExperiment {
 	public static final String SCFG_MODEL = "SCFG_MT";
 
 	public static void main(String [] args){
-		
+
 		String mtModel = IBM_MODEL; // Run IBM Model by default
 		// Check if we need to run scfg model
 		if(args.length > 0) {
-			
+
 			if(args[0].equals(SCFG_MODEL)) {
 				mtModel = SCFG_MODEL;
 			}
@@ -241,7 +244,7 @@ public class SokoMTExperiment {
 		//setup language model
 		Tokenizer tokenizer = new Tokenizer(true, true);
 		tokenizer.addDelimiter("-");
-		
+
 		WeaklySupervisedLanguageModel model = null;
 		switch(mtModel) {
 		case IBM_MODEL: model = new MTWeaklySupervisedModel(controller, tokenizer, 10); break;
@@ -256,7 +259,7 @@ public class SokoMTExperiment {
 
 
 	public static void evaluatePerformanceOnDataset(WeaklySupervisedController controller,
-													List<TrainingElement> dataset, Map<String, String> rfLabels){
+			List<TrainingElement> dataset, Map<String, String> rfLabels){
 
 		GenerativeModel gm = controller.getGM();
 
@@ -267,9 +270,20 @@ public class SokoMTExperiment {
 			String rfLabel = rfLabels.get(te.identifier);
 			List<GMQueryResult> rfDist = controller.getRFDistribution(te.trajectory.getState(0), te.command);
 			GMQueryResult predicted = GMQueryResult.maxProb(rfDist);
+			if(predicted == null){
+				System.out.println("Predicted Query result is null, Skipping command - " + te.command);
+				continue;
+			}
+			
+			RVariableValue val = predicted.getQueryForVariable(gm.getRVarWithName(TaskModule.GROUNDEDRFNAME));
+			if(val == null){
+				System.out.println("rvaribale value null, Skipping command - " + te.command);
+				continue;
+			}
 
-			TaskModule.RFConVariableValue gr = (TaskModule.RFConVariableValue)predicted.getQueryForVariable(gm.getRVarWithName(TaskModule.GROUNDEDRFNAME));
+			TaskModule.RFConVariableValue gr = (TaskModule.RFConVariableValue)val;
 			String grs = gr.toString().trim();
+
 			if(grs.equals(rfLabel)){
 				c++;
 				System.out.println("Correct: " + te.identifier);
@@ -277,9 +291,7 @@ public class SokoMTExperiment {
 			else{
 				System.out.println("Incorrect: " + te.identifier);
 			}
-
 			n++;
-
 		}
 		System.out.println(c + "/" + dataset.size() + "; " + ((double)c/(double)n));
 

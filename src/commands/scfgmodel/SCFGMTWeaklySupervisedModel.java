@@ -13,11 +13,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import logicalexpressions.LogicalExpression;
 import logicalexpressions.PFAtom;
-import burlap.oomdp.core.GroundedProp;
 
 import commands.model3.mt.Tokenizer;
 import commands.model3.mt.em.WeightedMTInstance;
@@ -27,10 +25,7 @@ import commands.model3.weaklysupervisedinterface.WeaklySupervisedLanguageModel;
 import commands.model3.weaklysupervisedinterface.WeaklySupervisedTrainingInstance;
 
 /**
- * An SCFG Machine Translate language model that is trained through weak supervision. This class
- * first converts the logical expressions into a machine language expression that is deterministically generated.
- * This process also requires wrapping the results into a new dataset that is made up of {@link commands.model3.mt.em.WeightedMTInstance}
- * objects. The number of EM iterations when training is performed is a required parameter.
+ * An SCFG Machine Translate language model that is trained through weak supervision.
  * @author Abhinav Bajaj
  */
 public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageModel{
@@ -84,6 +79,8 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 		}
 		System.out.println(parts[1].trim());
 		System.out.println(parts[parts.length-1].trim());
+		Double a = Math.exp(Double.parseDouble(parts[parts.length-1].trim()));
+		System.out.println(a);
 	}
 
 	@Override
@@ -105,18 +102,20 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 			runMoses(MOSES_TRANS_SCRIPT);
 
 			String machineLanguage = this.getMachineLanguageString(liftedTask, bindingConstraints);
+			System.out.println("======================================");
 			System.out.println("Machine -> " + machineLanguage);
-
-			// Load Moses output
-			return loadMosesOutput(machineLanguage);
-			// Calculate probability score
+			
+			// Load Moses output && Calculate probability score
+			return getScoreFromMosesOutput(machineLanguage);
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			System.out.println("Exitted due to exception -" + e.getMessage());
 			System.exit(-1);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
+			System.out.println("Exitted due to exception -" + e.getMessage());
 			System.exit(-1);
 			
 		}
@@ -127,7 +126,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 		return 0;
 	}
 
-	private double loadMosesOutput(String machineLanguage) throws IOException {
+	private double getScoreFromMosesOutput(String machineLanguage) throws IOException {
 
 		BufferedReader br = null;
 
@@ -148,6 +147,8 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 					return Math.exp(Double.parseDouble(score));
 				}
 			}
+			//TODO Value to be returned in machinelanguage does not match any moses output
+			System.out.println("MachineLang not found, returning 0");
 			return 0.0;
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -163,7 +164,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 
 		List<WeightedMTInstance> mtDataset = this.generateMTDataset(dataset);
 
-		// TODO Create the files here
+		// Create the files here
 		PrintWriter natCommWriter = null;
 		PrintWriter semCommWriter = null;
 		try {
@@ -177,6 +178,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 			natCommWriter = new PrintWriter(natCommFile);
 			semCommWriter = new PrintWriter(semCommFile);
 
+			// write the training data to files
 			for(WeightedMTInstance wMTObj: mtDataset) {
 				String natComm = wMTObj.naturalCommand.toString();
 				for(WeightedSemanticCommandPair semComm : wMTObj) {
@@ -185,8 +187,8 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 				}
 			}
 		} catch (FileNotFoundException e) {
-			// TODO Exception handling
 			e.printStackTrace();
+			System.exit(-1);
 		}
 		finally {
 			if(natCommWriter!=null)
@@ -202,7 +204,6 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 
 	private boolean runMoses(String script) {
 		ProcessBuilder processBuilder = new ProcessBuilder(script);
-		//processBuilder.directory(new File("D:/"));
 		File log = new File(MOSES_SCRIPT_OUTPUT);
 		processBuilder.redirectErrorStream(true);
 		processBuilder.redirectOutput(Redirect.to(log));
@@ -215,11 +216,11 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 			System.out.println("Execution Complete");
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(-1);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(-1);
 		}
 		return false;
 
@@ -288,11 +289,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 				sb.append(" ").append(p);
 			}
 		}
-
-
-
 		return sb.toString();
-
 	}
 
 
@@ -302,7 +299,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 	 * @param semWords the set to fill with the semantic words
 	 * @return the maximum semantic command length
 	 */
-	protected static int getSemanticWordsFromMTDataset(List<WeightedMTInstance> dataset, Set<String> semWords){
+	/*protected static int getSemanticWordsFromMTDataset(List<WeightedMTInstance> dataset, Set<String> semWords){
 
 		int maxLength = 0;
 		for(WeightedMTInstance wi : dataset){
@@ -316,7 +313,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 
 		return maxLength;
 
-	}
+	}*/
 
 
 	/**
@@ -325,7 +322,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 	 * @param natWords the set to fill with the natural words
 	 * @return the maximum natural command length
 	 */
-	protected static int getNaturalWordsFromMTDataset(List<WeightedMTInstance> dataset, Set<String> natWords){
+	/*protected static int getNaturalWordsFromMTDataset(List<WeightedMTInstance> dataset, Set<String> natWords){
 
 		int maxLength = 0;
 		for(WeightedMTInstance wi : dataset){
@@ -338,7 +335,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 		return maxLength;
 
 	}
-
+*/
 
 	/**
 	 * Extracts the {@link burlap.oomdp.core.GroundedProp} objects from the logical expression by assuming that
@@ -346,7 +343,7 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 	 * @param exp the input {@link logicalexpressions.LogicalExpression}
 	 * @return all {@link burlap.oomdp.core.GroundedProp} objects.
 	 */
-	protected List<GroundedProp> extractGPs(LogicalExpression exp){
+	/*protected List<GroundedProp> extractGPs(LogicalExpression exp){
 		List<GroundedProp> gps = new ArrayList<GroundedProp>(exp.getChildExpressions().size());
 		for(LogicalExpression atom : exp.getChildExpressions()){
 			GroundedProp gp = ((PFAtom)atom).getGroundedProp();
@@ -354,5 +351,5 @@ public class SCFGMTWeaklySupervisedModel implements WeaklySupervisedLanguageMode
 		}
 
 		return gps;
-	}
+	}*/
 }

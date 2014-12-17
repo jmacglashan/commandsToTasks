@@ -1,0 +1,98 @@
+This is an explanation of the new code base; feel free to forward this along to your student(s) and feel free to have them ask me questions that they have.
+
+The code base and relevant datasets can now be found in an independent git hub repo that only includes code and datasets relevant to this research project, which should make sifting through it easier than using my larger research code base that I pointed you to previously. That link is here:
+
+https://github.com/jmacglashan/commandsToTasks
+
+Most of the relevant code that anyone trying to build a language model would need to worry about is documented.  I’ll break this email up into three sections. One on using an existing documented experiment on our AMT dataset with IBM Model 2; another on how to create your own language model; and finally, how you can trivially plug your custom language model into the existing experiment code.
+
+*******Running AMT experiments********
+
+The AMT experiment code provides the following functionality:
+1) Perform an experiment testing the training dataset accuracy
+2) Cache the results of IRL on a dataset to disk for faster subsequent experiments
+3) Perform an experiment testing the training dataset accuracy using cached IRL results
+4) Perform a leave-one-out cross validation test using the cached IRL results
+
+All of this code is found in the class experiments.sokoban.SokoMTExperiment and you’ll find that the main method of the class has a different method call for each of those 4 functions. In general, you should have all method calls but the one whose function you want to perform commented out.
+
+1) To perform training dataset accuracy test, use the method call
+
+trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET);
+
+You should find accuracy of about 85%
+
+2) To cache IRL results to disk (which is useful if you keep trying changes to the language model alone, because IRL is often the CPU bottle neck in these experiments), use the method
+
+cacheIRLResultsFor(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache”);
+
+where the last parameter is the path to a (already created) directory where the cache files will be stored.
+
+3) To run training dataset accuracy using the cached IRL using the method
+
+trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache”);
+
+where the last parameter is again the path to the IRL cache directory. You should notice that the creation of the weakly supervised dataset that uses IRL goes much faster since it doesn’t actually have to perform IRL on each trajectory and reward function. For more complex environments, like ones we have in our expert dataset, this is a major time saver, but not as significant for the AMT study where the tasks were simpler.
+
+4) For leave-one-out cross validation test use the method
+
+LOOTest(true, SokobanControllerConstructor.AMTFULLDATASET, "data/amtFullTrajectoryCache”);
+
+The LOO method assumes that you have an IRL cache file to make it run faster. LOO, by its nature, takes a lot longer to run so in practice I usually run LOO distributed across a compute grid, but I provided it there so that there is a frame of reference for performing cross-validated experiments.
+
+
+
+
+**********Implementing your own language model**************
+
+Now that you know how to run an experiment, you’ll want to know how to create your own language model to try. To implement a language model you’ll need to create a java class that implements the interface 
+
+commands.model3.weaklysupervisedinterface.WeaklySupervisedLanguageModel.
+
+The WeaklySupervisedLanguageModel interface only requires you to implement two methods: 
+
+double probabilityOfCommand(LogicalExpression liftedTask, LogicalExpression bindingConstraints, String command)
+
+and 
+
+public void learnFromDataset(List<WeaklySupervisedTrainingInstance> dataset)
+
+Both are documented in the code. The first method asks the language model to return the probability of a command being generated from the given lifted task and binding constraints; the second asks the model to perform learning given the weakly supervised dataset (where the weak supervision was provided IRL).
+
+For the probabilityOfCommand method, the lifted task and object binding constraints are specified as logicalexpressions.LogicalExpression objects. A logical expression is basically a tree specifying logical connectors of other expressions. For example, you might have a conjunction of other logical expressions, that in turn decompose themselves until you reach a terminal PFAtom logical expression object. Full information about how that code is organized can be found in the LogicalExpression class documentation. For the AMT and expert dataset experiments, you can assume (if it’s easier to do so) that tasks and binding constraints are nothing more than a conjunction of PFAtom objects.
+
+For the learnFromDataset method, you’ll note that the dataset is a set of WeaklySupervisedTrainingInstance object instance. That tuple consists of a lifted task, object binding constraints, a natural language command, and a weight that is the probability that that lifted task and binding constraints were associated with the natural language command. As before, the lifted task and object binding constraints are specified by LogicalExpression objects.
+
+If you want some reference for implementing these methods, you can look at the class 
+
+commands.model3.weaklysupervisedinterface.MTWeaklySupervisedModel
+
+which is the IBM Model 2 MT implementation. In particular, you might find it interesting to use the same trick it does which converts the lifted task and binding constraints into a machine language expression. You can see how that’s done with the method 
+
+getMachineLanguageString(LogicalExpression liftedTask, LogicalExpression bindingConstraints). 
+
+However, I suspect that you might want to reason over the logical representation itself since that will have more rich information. 
+
+Note that the MTWeaklySupervisedModel implementation actually extends a GenerativeModel object that the controller holds. You do *not* have to do this in your code, it’s just how my previous code base worked. You can basically ignore the rest of the code as long as you implement the two methods of the MTWeaklySupervisedModel interface so that they train and return probabilities.
+
+
+
+
+
+
+************Connecting your language model into the experiment**************
+
+Once you have defined your own language model that implements the WeaklySupervisedLanguageModel interface, connecting it to the existing AMT experiment code is trivial. You will find that the SokoMTExperiment class has a method called:
+
+createAndAddLanguageModel(WeaklySupervisedController controller) which in turn simply calls the method 
+
+createAndAddMTModel(WeaklySupervisedController controller)
+
+All the latter method’s code does is instantiate the IBM Model 2 language model (MTWeaklySupervisedModel) and then connects it to the controller with the single line of code:
+
+controller.setLanguageModel(model);
+
+Therefore, once you’d defined your language model class, all you need to do is create your own method that tasks as input a WeaklySupervisedController object, instantiates an instance of your language model class, and connects it to the controller using the same setLanguageModel method.
+Then point the createAndAddLanguageModel to the method you created that does this instantiation and connection, rather then the IBM Model 2 method that it currently calls.
+
+After that, you’re done and can run the experiment!
