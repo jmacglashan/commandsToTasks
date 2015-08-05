@@ -87,7 +87,7 @@ public class MTWeaklySupervisedModel implements WeaklySupervisedLanguageModel{
 		MTModule langMod = new MTModule(LANGMODNAME, gm.getRVarWithName(TaskModule.LIFTEDRFNAME), gm.getRVarWithName(TaskModule.BINDINGNAME),
 				semanticWords, naturalWords, maxSemanticCommandLength, maxNaturalCommandLength, tokenizer);
 
-		gm.addGMModule(langMod);
+		gm.setGMModule(langMod);
 
 		this.naturalCommandVariable = gm.getRVarWithName(MTModule.NNAME);
 

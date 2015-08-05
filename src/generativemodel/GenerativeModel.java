@@ -62,6 +62,29 @@ public class GenerativeModel {
 		module.setOwner(this);
 		
 	}
+
+	/**
+	 * Add a module that governs the probability distribution and definition of random variables.
+	 * and replaces any existing module with the same name.
+	 * @param module the module to add
+	 */
+	public void setGMModule(GMModule module){
+
+		//remove it
+		if(this.moduleMap.containsKey(module.name)){
+			this.modules.remove(moduleMap.get(module.name));
+		}
+
+		modules.add(module);
+		moduleMap.put(module.name, module);
+
+		for(RVariable rv : module.rVariables){
+			variableOwnerResolver.put(rv, module);
+		}
+
+		module.setOwner(this);
+
+	}
 	
 	
 	/**

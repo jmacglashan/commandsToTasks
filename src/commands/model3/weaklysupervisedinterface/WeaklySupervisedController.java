@@ -266,6 +266,25 @@ public class WeaklySupervisedController {
 
 	}
 
+	public void createOrAddWeaklySupervisedTrainingDatasetFromTrajectoryDataset(List<TrainingElement> trajCommandDataset){
+		List<WeaklySupervisedTrainingInstance> wsd = new LinkedList<WeaklySupervisedTrainingInstance>();
+
+		for(TrainingElement te : trajCommandDataset){
+			List<WeaklySupervisedTrainingInstance> instancesForTrjactory = this.getWeaklySupervisedTrainingInstancesForTrajectory(te.trajectory, te.command);
+			wsd.addAll(instancesForTrjactory);
+		}
+
+		//convert to array list for fast access
+		if(this.weaklySupervisedTrainingDataset == null) {
+			this.weaklySupervisedTrainingDataset = new ArrayList<WeaklySupervisedTrainingInstance>(wsd);
+		}
+		else{
+			this.weaklySupervisedTrainingDataset.addAll(wsd);
+		}
+
+
+	}
+
 	public void setWeaklySupervisedTrainingDataset(List<WeaklySupervisedTrainingInstance> trainingDataset){
 		this.weaklySupervisedTrainingDataset = new ArrayList<WeaklySupervisedTrainingInstance>(trainingDataset);
 	}
