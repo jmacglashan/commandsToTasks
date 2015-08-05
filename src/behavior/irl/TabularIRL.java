@@ -8,8 +8,6 @@ import burlap.behavior.singleagent.Policy;
 import burlap.behavior.singleagent.planning.PlannerDerivedPolicy;
 import burlap.behavior.singleagent.planning.ValueFunctionPlanner;
 import burlap.behavior.singleagent.planning.commonpolicies.BoltzmannQPolicy;
-import burlap.behavior.statehashing.DiscreteStateHashFactory;
-import burlap.behavior.statehashing.StateHashFactory;
 import burlap.oomdp.core.Attribute;
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.ObjectClass;

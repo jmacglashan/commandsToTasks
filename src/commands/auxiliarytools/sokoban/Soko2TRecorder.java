@@ -10,6 +10,7 @@ import burlap.oomdp.visualizer.Visualizer;
 import domain.singleagent.sokoban2.Sokoban2Domain;
 import domain.singleagent.sokoban2.Sokoban2Parser;
 import domain.singleagent.sokoban2.Sokoban2Visualizer;
+import domain.singleagent.sokoban2.SokobanOldToNewParser;
 
 public class Soko2TRecorder {
 
@@ -31,7 +32,8 @@ public class Soko2TRecorder {
 		
 		StateGenerator sg = new Soko2Turk1(domain);
 		Visualizer v = Sokoban2Visualizer.getVisualizer(pathToRobotImagesDirectory);
-		StateParser sp = new Sokoban2Parser(domain);
+		//StateParser sp = new Sokoban2Parser(domain);
+		StateParser sp = new SokobanOldToNewParser(domain);
 		
 		String datapath = args[0];
 		

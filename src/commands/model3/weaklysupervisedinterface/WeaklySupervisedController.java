@@ -10,8 +10,10 @@ import burlap.oomdp.core.State;
 import commands.data.TrainingElement;
 import commands.data.Trajectory;
 import commands.model3.GPConjunction;
+import commands.model3.StringValue;
 import commands.model3.TaskModule;
 import commands.model3.TrajectoryModule;
+import commands.model3.mt.MTModule;
 import generativemodel.*;
 import logicalexpressions.Conjunction;
 import logicalexpressions.LogicalExpression;
@@ -77,6 +79,10 @@ public class WeaklySupervisedController {
 
 	public void setLanguageModel(WeaklySupervisedLanguageModel languageModel){
 		this.languageModel = languageModel;
+	}
+
+	public void dumpLanguageMode(String path){
+		((MTModule)(this.gm.getModuleWithName(MTWeaklySupervisedModel.LANGMODNAME))).dumpToFile(path);
 	}
 
 
@@ -171,6 +177,78 @@ public class WeaklySupervisedController {
 		return distro;
 	}
 
+
+	public List<GMQueryResult> getTaskDescriptionDistribution(State initialState, String naturalCommand){
+
+		TaskModule.StateRVValue sval = new TaskModule.StateRVValue(initialState, this.hashingFactory, this.gm.getRVarWithName(TaskModule.STATENAME));
+
+		HashedAggregator<GMQuery> jointP = new HashedAggregator<GMQuery>();
+		double totalProb = 0.;
+
+		List<RVariableValue> sconds = new ArrayList<RVariableValue>(1);
+		sconds.add(sval);
+		Iterator<GMQueryResult> lrIter = this.gm.getNonZeroIterator(this.gm.getRVarWithName(TaskModule.LIFTEDRFNAME), sconds, true);
+		while(lrIter.hasNext()){
+			GMQueryResult lrRes = lrIter.next();
+
+			List<RVariableValue> lrConds = new ArrayList<RVariableValue>(2);
+			lrConds.add(sval);
+			lrConds.add(lrRes.getSingleQueryVar());
+			Iterator<GMQueryResult> grIter = this.gm.getNonZeroIterator(this.gm.getRVarWithName(TaskModule.GROUNDEDRFNAME), lrConds, true);
+			while(grIter.hasNext()){
+				GMQueryResult grRes = grIter.next();
+				double stackLRGR = lrRes.probability*grRes.probability;
+
+				List<RVariableValue> grConds = new ArrayList<RVariableValue>(3);
+				grConds.add(sval);
+				grConds.add(lrRes.getSingleQueryVar());
+				grConds.add(grRes.getSingleQueryVar());
+				Iterator<GMQueryResult> bIter = this.gm.getNonZeroIterator(this.gm.getRVarWithName(TaskModule.BINDINGNAME), grConds, true);
+				while(bIter.hasNext()){
+					GMQueryResult bRes = bIter.next();
+					double stackLRGRB = stackLRGR * bRes.probability;
+
+
+					//convert to logical expressions
+					LogicalExpression liftedTaskLE = this.convertLiftedIntoLogicalExpression(
+							(TaskModule.LiftedVarValue)lrRes.getSingleQueryVar());
+
+					LogicalExpression bindingConstraintLE = this.convertLiftedIntoLogicalExpression(
+							(TaskModule.LiftedVarValue)bRes.getSingleQueryVar());
+
+					double lp = this.languageModel.probabilityOfCommand(liftedTaskLE, bindingConstraintLE, naturalCommand);
+					double p = lp * stackLRGRB;
+
+					////System.out.println(p + ": " + grRes.getSingleQueryVar().toString() + " " + bRes.getSingleQueryVar().toString());
+
+					GMQuery distroWrapper = new GMQuery();
+					distroWrapper.addQuery(lrRes.getSingleQueryVar());
+					distroWrapper.addQuery(bRes.getSingleQueryVar());
+					distroWrapper.addCondition(sval);
+					distroWrapper.addCondition(new StringValue(naturalCommand, this.gm.getRVarWithName(MTModule.NNAME)));
+
+
+					jointP.add(distroWrapper, p);
+					totalProb += p;
+
+
+				}
+
+			}
+
+		}
+
+		List<GMQueryResult> distro = new ArrayList<GMQueryResult>(jointP.size());
+		for(Map.Entry<GMQuery, Double> e : jointP.entrySet()){
+			double prob = e.getValue() / totalProb;
+			GMQueryResult qr = new GMQueryResult(e.getKey(), prob);
+			distro.add(qr);
+		}
+
+
+		return distro;
+
+	}
 
 
 

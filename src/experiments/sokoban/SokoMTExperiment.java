@@ -1,5 +1,6 @@
 package experiments.sokoban;
 
+import burlap.oomdp.core.State;
 import commands.data.TrainingElement;
 import commands.model3.TaskModule;
 import commands.model3.mt.Tokenizer;
@@ -7,10 +8,9 @@ import commands.model3.weaklysupervisedinterface.MTWeaklySupervisedModel;
 import commands.model3.weaklysupervisedinterface.WeaklySupervisedController;
 import generativemodel.GMQueryResult;
 import generativemodel.GenerativeModel;
+import generativemodel.RVariableValue;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author James MacGlashan.
@@ -22,7 +22,13 @@ public class SokoMTExperiment {
 		/////////////////////////////////////////////////////////////
 		// FOR AMT FULL DATASET TRAINING TEST USE THE BELOW
 		////////////////////////////////////////////////////////////
-		trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET);
+		//trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET);
+		//trainingTest(false, SokobanControllerConstructor.EXPERTDATASET);
+
+		//savedModelTest(true, SokobanControllerConstructor.AMTFULLDATASET, "langModelParams.yaml");
+		//savedModelTest(false, SokobanControllerConstructor.EXPERTDATASET, "expertLangModelParams.yaml");
+
+		savedModelTaskProbs(true, SokobanControllerConstructor.AMTFULLDATASET, "amtLangModelParams.yaml");
 
 
 		/////////////////////////////////////////////////////////////
@@ -81,6 +87,95 @@ public class SokoMTExperiment {
 		else{
 			evaluatePerformanceOnDataset(controller, dataset, constructor.getExpertDatasetRFLabels());
 		}
+
+		controller.dumpLanguageMode("expertLangModelParams.yaml");
+	}
+
+	public static void savedModelTest(boolean isAMT, String pathToDataset, String pathToLanguageModel){
+
+		//sokoban training task definition
+		SokobanControllerConstructor constructor;
+		if(isAMT){
+			constructor = new SokobanControllerConstructor(false, true);
+		}
+		else{
+			constructor = new SokobanControllerConstructor(true, false);
+		}
+
+
+		//get our controller
+		WeaklySupervisedController controller = constructor.generateNewController();
+
+		//instantiate our MT language model
+		createAndAddMTModel(controller, pathToLanguageModel);
+
+		//get training data
+		List<TrainingElement> dataset = constructor.getTrainingDataset(pathToDataset);
+
+
+		//evaluate results
+		if(isAMT) {
+			evaluatePerformanceOnDataset(controller, dataset, constructor.getTurkDatasetRFLabels());
+		}
+		else{
+			evaluatePerformanceOnDataset(controller, dataset, constructor.getExpertDatasetRFLabels());
+		}
+
+	}
+
+
+	public static void savedModelTaskProbs(boolean isAMT, String pathToDataset, String pathToLanguageModel){
+
+		//sokoban training task definition
+		SokobanControllerConstructor constructor;
+		if(isAMT){
+			constructor = new SokobanControllerConstructor(false, true);
+		}
+		else{
+			constructor = new SokobanControllerConstructor(true, false);
+		}
+
+
+		//get our controller
+		WeaklySupervisedController controller = constructor.generateNewController();
+
+		//instantiate our MT language model
+		createAndAddMTModel(controller, pathToLanguageModel);
+
+		//get training data
+		List<TrainingElement> dataset = constructor.getTrainingDataset(pathToDataset);
+
+
+		for(TrainingElement te : dataset) {
+			String command = te.command;
+			State state = te.trajectory.getState(0);
+			System.out.println(command);
+			List<GMQueryResult> distro = controller.getTaskDescriptionDistribution(state, command);
+			Collections.sort(distro, new Comparator<GMQueryResult>() {
+				@Override
+				public int compare(GMQueryResult o1, GMQueryResult o2) {
+					return -1*Double.compare(o1.probability, o2.probability);
+				}
+			});
+
+
+			for(GMQueryResult result : distro) {
+				System.out.println(result.probability + ": " + taskDescription(controller, result));
+			}
+			System.out.println("");
+		}
+
+
+
+	}
+
+	protected static String taskDescription(WeaklySupervisedController controller, GMQueryResult result){
+
+		RVariableValue lifted = result.getQueryForVariable(controller.getGM().getRVarWithName(TaskModule.LIFTEDRFNAME));
+		RVariableValue bindings = result.getQueryForVariable(controller.getGM().getRVarWithName(TaskModule.BINDINGNAME));
+
+		return lifted.toString() + " " + bindings.toString();
+
 	}
 
 	public static void trainingTest(boolean isAMT, String pathToDataset, String pathToIRLCache){
@@ -227,6 +322,19 @@ public class SokoMTExperiment {
 		Tokenizer tokenizer = new Tokenizer(true, true);
 		tokenizer.addDelimiter("-");
 		MTWeaklySupervisedModel model = new MTWeaklySupervisedModel(controller, tokenizer, 10);
+
+		//set our controller to use the MT model we created
+		controller.setLanguageModel(model);
+	}
+
+	public static void createAndAddMTModel(WeaklySupervisedController controller, String path){
+		//setup language model
+		Tokenizer tokenizer = new Tokenizer(true, true);
+		tokenizer.addDelimiter("-");
+		MTWeaklySupervisedModel model = new MTWeaklySupervisedModel(controller, tokenizer, 10);
+		System.out.println("Loading model");
+		model.loadModel(path);
+		System.out.println("Finished loading");
 
 		//set our controller to use the MT model we created
 		controller.setLanguageModel(model);

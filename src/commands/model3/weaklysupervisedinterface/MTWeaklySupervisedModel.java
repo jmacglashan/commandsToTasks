@@ -96,6 +96,17 @@ public class MTWeaklySupervisedModel implements WeaklySupervisedLanguageModel{
 
 	}
 
+	public void loadModel(String path){
+		GenerativeModel gm = this.controller.getGM();
+
+		MTModule langMod = new MTModule(LANGMODNAME, gm.getRVarWithName(TaskModule.LIFTEDRFNAME), gm.getRVarWithName(TaskModule.BINDINGNAME),
+				tokenizer, path);
+
+		gm.addGMModule(langMod);
+		this.naturalCommandVariable = gm.getRVarWithName(MTModule.NNAME);
+
+	}
+
 
 	/**
 	 * Returns the {@link commands.model3.mt.em.WeightedMTInstance} dataset wrapper that our MT model prefers. This dataset

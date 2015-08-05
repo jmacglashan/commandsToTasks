@@ -7,6 +7,10 @@ import generativemodel.ModelTrackedVarIterator;
 import generativemodel.RVariable;
 import generativemodel.RVariableValue;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +24,8 @@ import burlap.oomdp.core.GroundedProp;
 
 import commands.model3.StringValue;
 import commands.model3.TaskModule.LiftedVarValue;
+import org.yaml.snakeyaml.Yaml;
+import sun.text.IntHashtable;
 
 public class MTModule extends GMModule {
 
@@ -100,6 +106,81 @@ public class MTModule extends GMModule {
 		//this.rand = RandomFactory.getMapped(0);
 		this.rand = new Random(1);
 		
+	}
+
+	public MTModule(String name, RVariable liftedRFVariable, RVariable bindingConstraintVariable,
+					Tokenizer tokenizer, String loadPath){
+		super(name);
+
+		this.liftedRFVariable = liftedRFVariable;
+		this.bindingConstraintVariable = bindingConstraintVariable;
+
+		this.semanticCommandVariable = new RVariable(SNAME, this);
+		this.naturalCommandVariable = new RVariable(NNAME, this);
+
+		this.naturalTokenizer = tokenizer;
+		this.semanticTokenizer = new Tokenizer(true);
+
+		Yaml yaml = new Yaml();
+		FileReader reader = null;
+		try {
+			reader = new FileReader(loadPath);
+		} catch(FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		Iterator<Object> iter = yaml.loadAll(reader).iterator();
+
+		this.maxSemanticCommandLength = (Integer)iter.next();
+		System.out.println("Read semantic command length");
+
+		this.maxNaturalCommandLength = (Integer)iter.next();
+		System.out.println("Read natural command length");
+
+		this.semanticWords = (Set<String>)iter.next();
+		System.out.println("Read semantic words");
+
+		this.naturalWords = (Set<String>)iter.next();
+		System.out.println("Read natural words");
+
+		this.dp = (DistortionParam)iter.next();
+		System.out.println("Read distortion params");
+		this.wp = (WordParam)iter.next();
+		System.out.println("Read translation params");
+		this.lp = (LengthParam)iter.next();
+		System.out.println("Read length params");
+
+		this.rand = new Random(1);
+
+//		for(Object o : yaml.loadAll(reader)){
+//			System.out.println(o.getClass());
+//		}
+
+	}
+
+
+	public void dumpToFile(String path){
+
+		List <Object> dataObjects = new ArrayList<Object>();
+		dataObjects.add(this.maxSemanticCommandLength);
+		dataObjects.add(this.maxNaturalCommandLength);
+		dataObjects.add(this.semanticWords);
+		dataObjects.add(this.naturalWords);
+		dataObjects.add(this.dp);
+		dataObjects.add(this.wp);
+		dataObjects.add(this.lp);
+
+		Yaml yaml = new Yaml();
+
+		FileWriter writer = null;
+		try {
+			writer = new FileWriter(path);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+
+		yaml.dumpAll(dataObjects.iterator(), writer);
+
 	}
 	
 	
@@ -459,9 +540,9 @@ public class MTModule extends GMModule {
 	
 	
 	
-	public class DistortionParam{
+	public static class DistortionParam implements java.io.Serializable{
 		
-		Map<IntTupleHash, Double> paramValues;
+		public Map<IntTupleHash, Double> paramValues;
 		
 		public DistortionParam(){
 			this.paramValues = new HashMap<IntTupleHash, Double>();
@@ -474,7 +555,9 @@ public class MTModule extends GMModule {
 		}
 		
 		public void set(double p, int j, int i, int l, int m){
-			this.paramValues.put(new IntTupleHash(j, i, l, m), p);
+			if(p > 0.) {
+				this.paramValues.put(new IntTupleHash(j, i, l, m), p);
+			}
 		}
 		
 		
@@ -482,9 +565,9 @@ public class MTModule extends GMModule {
 	
 
 	
-	public class WordParam{
+	public static class WordParam implements java.io.Serializable{
 		
-		Map <String, Double> paramValues;
+		public Map <String, Double> paramValues;
 		
 		public WordParam(){
 			this.paramValues = new HashMap<String, Double>();
@@ -497,14 +580,16 @@ public class MTModule extends GMModule {
 		}
 		
 		public void set(double p, String prodWord, String genWord){
-			this.paramValues.put(tokenCombine(prodWord, genWord), p);
+			if(p > 0.) {
+				this.paramValues.put(tokenCombine(prodWord, genWord), p);
+			}
 		}
 		
 	}
 	
-	public class LengthParam{
+	public static class LengthParam implements java.io.Serializable{
 		
-		Map <IntTupleHash, Double> paramValues;
+		public Map <IntTupleHash, Double> paramValues;
 		
 		public LengthParam(){
 			this.paramValues = new HashMap<IntTupleHash, Double>();
@@ -517,15 +602,21 @@ public class MTModule extends GMModule {
 		}
 		
 		public void set(double p, int l, int m){
-			this.paramValues.put(new IntTupleHash(l, m), p);
+			if(p > 0.) {
+				this.paramValues.put(new IntTupleHash(l, m), p);
+			}
 		}
 		
 	}
 	
 	
-	public static class IntTupleHash{
+	public static class IntTupleHash implements java.io.Serializable{
 		
-		int [] tuple;
+		public int [] tuple;
+
+		public IntTupleHash(){
+
+		}
 		
 		public IntTupleHash(int j, int i, int l, int m){
 			this.tuple = new int[]{j,i,l,m};
