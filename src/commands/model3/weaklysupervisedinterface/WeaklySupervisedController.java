@@ -289,6 +289,10 @@ public class WeaklySupervisedController {
 		this.weaklySupervisedTrainingDataset = new ArrayList<WeaklySupervisedTrainingInstance>(trainingDataset);
 	}
 
+	public List<WeaklySupervisedTrainingInstance> getWeaklySupervisedTrainingDataset() {
+		return weaklySupervisedTrainingDataset;
+	}
+
 	public void trainLanguageModel(){
 		if(this.languageModel == null){
 			throw new RuntimeException("Cannot train language model, because the weakly supervised language model has not be set!\n" +
