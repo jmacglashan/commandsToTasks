@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author James MacGlashan.
  */
-public class Conjunction extends LogicalExpression{
+public class Conjunction extends LogicalExpression implements java.io.Serializable{
 
 	public Conjunction(LogicalExpression...expressions){
 		for(LogicalExpression exp : expressions){

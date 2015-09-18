@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * @author James MacGlashan.
  */
-public class Negation extends LogicalExpression{
+public class Negation extends LogicalExpression implements java.io.Serializable{
 
 	public Negation() {
 		// Empty constructor in case child is not known yet (as in reading in from a file)

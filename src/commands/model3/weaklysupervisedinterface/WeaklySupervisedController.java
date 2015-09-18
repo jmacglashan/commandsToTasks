@@ -18,7 +18,15 @@ import generativemodel.*;
 import logicalexpressions.Conjunction;
 import logicalexpressions.LogicalExpression;
 import logicalexpressions.PFAtom;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.representer.Represent;
+import org.yaml.snakeyaml.representer.Representer;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -104,6 +112,71 @@ public class WeaklySupervisedController {
 	}
 
 	public WeaklySupervisedLanguageModel getLanguageModel(){ return this.languageModel; }
+
+	public void writeWeaklySupervisedData(String path){
+		File file = new File(path);
+		if(file.getParentFile() != null && !file.getParentFile().exists()){
+			file.mkdirs();
+		}
+
+		Yaml yaml = new Yaml(new PFAtomRepresenter());
+
+		FileWriter writer = null;
+		try {
+			writer = new FileWriter(path);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+
+		yaml.dumpAll(this.weaklySupervisedTrainingDataset.iterator(), writer);
+
+	}
+
+	public class PFAtomConstructor extends Constructor{
+
+
+
+	}
+
+	public class PFAtomRepresenter extends Representer{
+		public PFAtomRepresenter(){
+			super();
+			this.representers.put(PFAtom.class, new PFAtomRepresent());
+			addClassTag(PFAtomShell.class, "!pfatom");
+		}
+
+		private class PFAtomRepresent implements Represent{
+			@Override
+			public Node representData(Object o) {
+				PFAtom atom = (PFAtom)o;
+				StringBuilder builder = new StringBuilder();
+				builder.append(atom.name);
+				for(int i = 0; i < atom.pfParams.length; i++){
+					builder.append(" ").append(atom.pfParams[i]);
+				}
+				//return represent(new PFAtomShell(atom.parentExpression, atom.name, atom.pfParams));
+				//return representScalar(new Tag("!pfatom"), builder.toString());
+				try {
+					return representJavaBean(getProperties(PFAtomShell.class), new PFAtomShell(atom.parentExpression, atom.name, atom.pfParams));
+				}catch(Exception e){
+					throw new RuntimeException("Not working..");
+				}
+			}
+		}
+	}
+
+	private class PFAtomShell{
+		public LogicalExpression parent;
+		public String name;
+		public String [] params;
+		public PFAtomShell(){}
+
+		public PFAtomShell(LogicalExpression parent, String name, String[] params) {
+			this.parent = parent;
+			this.name = name;
+			this.params = params;
+		}
+	}
 
 
 	public List<GMQueryResult> getRFDistribution(State initialState, String naturalCommand){

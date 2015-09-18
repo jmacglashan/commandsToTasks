@@ -1,5 +1,6 @@
 package logicalexpressions;
 
+import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.State;
 
 import java.util.ArrayList;
@@ -27,12 +28,12 @@ import java.util.Map;
  *
  * @author James MacGlashan.
  */
-public abstract class LogicalExpression {
+public abstract class LogicalExpression implements java.io.Serializable{
 
-	protected Map<String, String>			variablesAndTypes = new HashMap<String, String>();
-	protected LogicalExpression 			parentExpression = null;
-	protected List<LogicalExpression> 		childExpressions = new ArrayList<LogicalExpression>();
-	protected String						name; // For Debugging purposes
+	public Map<String, String>			variablesAndTypes = new HashMap<String, String>();
+	public LogicalExpression 			parentExpression = null;
+	public List<LogicalExpression> 		childExpressions = new ArrayList<LogicalExpression>();
+	public String						name; // For Debugging purposes
 
 
 	/**
@@ -187,6 +188,12 @@ public abstract class LogicalExpression {
 
 	}
 
+	//TODO: instatiatePFS recursively
+	public void instantiatedPropositionalFunctionsFromDomain(Domain domain){
+		for(LogicalExpression child : this.childExpressions){
+			child.instantiatedPropositionalFunctionsFromDomain(domain);
+		}
+	}
 
 
 

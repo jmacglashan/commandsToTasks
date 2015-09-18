@@ -1,5 +1,6 @@
 package logicalexpressions;
 
+import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.GroundedProp;
 
 
@@ -9,9 +10,11 @@ import java.util.Map;
 /**
  * @author James MacGlashan.
  */
-public class PFAtom extends LogicalExpression{
+public class PFAtom extends LogicalExpression implements java.io.Serializable{
 
-	protected GroundedProp gp;
+	public String [] pfParams;
+
+	protected transient GroundedProp gp;
 
 	/**
 	 * Instantiates with the {@link burlap.oomdp.core.GroundedProp} that defines this {@link logicalexpressions.PFAtom}.
@@ -28,10 +31,16 @@ public class PFAtom extends LogicalExpression{
 			}
 		}
 		this.setName(this.gp.pf.getName());
+		this.pfParams = gp.params.clone();
 	}
 
 	public PFAtom() {
 		// Blank constructor for use in parsing from knowledge base.
+	}
+
+	@Override
+	public void instantiatedPropositionalFunctionsFromDomain(Domain domain){
+		this.gp = new GroundedProp(domain.getPropFunction(this.name), this.pfParams);
 	}
 
 	/**
@@ -53,9 +62,17 @@ public class PFAtom extends LogicalExpression{
 
 	@Override
 	public LogicalExpression duplicate() {
-		GroundedProp ngp = new GroundedProp(this.gp.pf, this.gp.params);
-		PFAtom natom = new PFAtom(ngp);
-		return natom;
+		if(this.gp != null) {
+			GroundedProp ngp = new GroundedProp(this.gp.pf, this.gp.params);
+			PFAtom natom = new PFAtom(ngp);
+			return natom;
+		}
+		else{
+			PFAtom natom = new PFAtom();
+			natom.setName(this.name);
+			natom.pfParams = this.pfParams.clone();
+			return natom;
+		}
 	}
 
 	@Override

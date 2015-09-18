@@ -28,7 +28,9 @@ public class SokoMTExperiment {
 		//savedModelTest(true, SokobanControllerConstructor.AMTFULLDATASET, "langModelParams.yaml");
 		//savedModelTest(false, SokobanControllerConstructor.EXPERTDATASET, "expertLangModelParams.yaml");
 
-		savedModelTaskProbs(true, SokobanControllerConstructor.AMTFULLDATASET, "amtLangModelParams.yaml");
+		//savedModelTaskProbs(true, SokobanControllerConstructor.AMTFULLDATASET, "amtLangModelParams.yaml");
+
+		testWeaklySupervisedDataWrite(true, SokobanControllerConstructor.AMTFULLDATASET);
 
 
 		/////////////////////////////////////////////////////////////
@@ -89,6 +91,35 @@ public class SokoMTExperiment {
 		}
 
 		controller.dumpLanguageMode("expertLangModelParams.yaml");
+	}
+
+	public static void testWeaklySupervisedDataWrite(boolean isAMT, String pathToDataset){
+
+		//sokoban training task definition
+		SokobanControllerConstructor constructor;
+		if(isAMT){
+			constructor = new SokobanControllerConstructor(false, true);
+		}
+		else{
+			constructor = new SokobanControllerConstructor(true, false);
+		}
+
+
+		//get our controller
+		WeaklySupervisedController controller = constructor.generateNewController();
+
+		//instantiate our MT language model
+		createAndAddLanguageModel(controller);
+
+		//get training data
+		List<TrainingElement> dataset = constructor.getTrainingDataset(pathToDataset);
+		dataset = dataset.subList(0,1);
+
+		//instantiate the weakly supervised language model dataset using IRL
+		controller.createWeaklySupervisedTrainingDatasetFromTrajectoryDataset(dataset);
+
+		controller.writeWeaklySupervisedData("exampleWS.yaml");
+
 	}
 
 	public static void savedModelTest(boolean isAMT, String pathToDataset, String pathToLanguageModel){
