@@ -1,22 +1,22 @@
 package behavior.irl;
 
 import behavior.planning.DeterministicGoalDirectedPartialVI;
-import burlap.behavior.singleagent.planning.ValueFunctionPlanner;
-import burlap.behavior.statehashing.StateHashFactory;
+import burlap.behavior.singleagent.planning.Planner;
 import burlap.oomdp.core.Domain;
+import burlap.oomdp.statehashing.HashableStateFactory;
 
 public class DGDIRLFactory extends TabularIRLPlannerFactory {
 
-	StateHashFactory				hashingFactory;
+	HashableStateFactory hashingFactory;
 	
-	public DGDIRLFactory(Domain domain, double gamma, StateHashFactory hashingFactory){
+	public DGDIRLFactory(Domain domain, double gamma, HashableStateFactory hashingFactory){
 		this.irlpInit(domain, gamma);
 		this.hashingFactory = hashingFactory;
 	}
 	
 	
 	@Override
-	public ValueFunctionPlanner generatePlanner() {
+	public Planner generatePlanner() {
 		DeterministicGoalDirectedPartialVI planner = new DeterministicGoalDirectedPartialVI(domain, rf, tf, gamma, hashingFactory);
 		if(this.actions != null){
 			planner.setActions(this.actions);

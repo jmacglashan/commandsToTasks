@@ -3,21 +3,28 @@ package behavior.irl;
 import java.util.ArrayList;
 import java.util.List;
 
+import burlap.behavior.policy.BoltzmannQPolicy;
+import burlap.behavior.policy.Policy;
+import burlap.behavior.policy.SolverDerivedPolicy;
 import burlap.behavior.singleagent.EpisodeAnalysis;
-import burlap.behavior.singleagent.Policy;
-import burlap.behavior.singleagent.planning.PlannerDerivedPolicy;
-import burlap.behavior.singleagent.planning.ValueFunctionPlanner;
-import burlap.behavior.singleagent.planning.commonpolicies.BoltzmannQPolicy;
+
+
+import burlap.behavior.singleagent.planning.Planner;
 import burlap.oomdp.core.Attribute;
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.ObjectClass;
-import burlap.oomdp.core.ObjectInstance;
-import burlap.oomdp.core.State;
+
 import burlap.oomdp.core.TerminalFunction;
 import burlap.oomdp.core.TransitionProbability;
+import burlap.oomdp.core.objects.MutableObjectInstance;
+import burlap.oomdp.core.objects.ObjectInstance;
+import burlap.oomdp.core.states.State;
 import burlap.oomdp.singleagent.Action;
+import burlap.oomdp.singleagent.FullActionModel;
 import burlap.oomdp.singleagent.GroundedAction;
 import burlap.oomdp.singleagent.RewardFunction;
+import burlap.oomdp.singleagent.common.SimpleAction;
+import burlap.oomdp.singleagent.common.SimpleGroundedAction;
 
 public class TabularIRL {
 	
@@ -25,7 +32,7 @@ public class TabularIRL {
 	public static final String				TERMINATECLASSNAME="terminateMarker";
 	
 	protected List<Action>					actions;
-	protected PlannerDerivedPolicy			policy;
+	protected SolverDerivedPolicy			policy;
 	protected TabularIRLPlannerFactory		plannerFactory;
 	
 	
@@ -175,7 +182,7 @@ public class TabularIRL {
 	
 	protected void setupPolicy(EpisodeAnalysis t, TaskCondition cond){
 		plannerFactory.changeGoal(cond.rf, cond.tf);
-		ValueFunctionPlanner planner = plannerFactory.generatePlanner();
+		Planner planner = plannerFactory.generatePlanner();
 		
 		//compute v value for all neighbor states along the trajectory
 		for(int i = 0; i < t.numTimeSteps(); i++){
@@ -186,7 +193,7 @@ public class TabularIRL {
 			}
 		}
 		
-		this.policy.setPlanner(planner);
+		this.policy.setSolver(planner);
 	}
 	
 	
@@ -198,9 +205,9 @@ public class TabularIRL {
 		neighbors.add(s);
 		
 		for(Action a : actions){
-			List <GroundedAction> gas = s.getAllGroundedActionsFor(a);
+			List<GroundedAction> gas = a.getAllApplicableGroundedActions(s);
 			for(GroundedAction ga : gas){
-				List<TransitionProbability> transitions = ga.action.getTransitions(s, ga.params);
+				List<TransitionProbability> transitions = ga.getTransitions(s);
 				for(TransitionProbability tp : transitions){
 					neighbors.add(tp.s);
 				}
@@ -228,7 +235,7 @@ public class TabularIRL {
 		//add final state with terminate action
 		State sf = t.getState(t.numTimeSteps()-1).copy();
 		this.addTerminateWithValue(sf, 1);
-		GroundedAction ga = new GroundedAction(terminateAction, "");
+		GroundedAction ga = new SimpleGroundedAction(terminateAction);
 		nt.recordTransitionTo(sf, ga, 0.);
 		
 		return nt;
@@ -236,7 +243,7 @@ public class TabularIRL {
 	}
 	
 	protected void addTerminateWithValue(State s, int v){
-		ObjectInstance o = new ObjectInstance(terminateClassMarker, "terminatedMarker");
+		ObjectInstance o = new MutableObjectInstance(terminateClassMarker, "terminatedMarker");
 		o.setValue(TERMINATEATTNAME, v);
 		s.addObject(o);
 	}
@@ -265,22 +272,22 @@ public class TabularIRL {
 	}
 	
 	
-	public static class TerminateAction extends Action{
+	public static class TerminateAction extends SimpleAction implements FullActionModel{
 
 		public TerminateAction(String name, Domain domain,String parameterClasses) {
-			super("#terminate#", domain, parameterClasses);
+			super("#terminate#", domain);
 		}
 
 		@Override
-		protected State performActionHelper(State st, String[] params) {
+		protected State performActionHelper(State st, GroundedAction ga) {
 			ObjectInstance o = st.getObject("terminatedMarker");
 			o.setValue(TERMINATEATTNAME, 1);
 			return st;
 		}
 
 		@Override
-		public List<TransitionProbability> getTransitions(State s, String[] params) {
-			return this.deterministicTransition(s, params);
+		public List<TransitionProbability> getTransitions(State s, GroundedAction ga) {
+			return this.deterministicTransition(s, ga);
 		}
 	}
 	
@@ -290,7 +297,7 @@ public class TabularIRL {
 		@Override
 		public boolean isTerminal(State s) {
 			ObjectInstance o = s.getObject("terminatedMarker");
-			int tv = o.getDiscValForAttribute(TERMINATEATTNAME);
+			int tv = o.getIntValForAttribute(TERMINATEATTNAME);
 			return tv == 1;
 		}
 		

@@ -2,7 +2,7 @@ package behavior.irl;
 
 import java.util.List;
 
-import burlap.behavior.singleagent.planning.ValueFunctionPlanner;
+import burlap.behavior.singleagent.planning.Planner;
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.TerminalFunction;
 import burlap.oomdp.singleagent.Action;
@@ -42,6 +42,6 @@ public abstract class TabularIRLPlannerFactory {
 	
 	
 	
-	public abstract ValueFunctionPlanner generatePlanner();
+	public abstract Planner generatePlanner();
 	
 }

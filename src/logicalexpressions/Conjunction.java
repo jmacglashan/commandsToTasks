@@ -1,6 +1,8 @@
 package logicalexpressions;
 
-import burlap.oomdp.core.State;
+
+
+import burlap.oomdp.core.states.State;
 
 import java.util.ArrayList;
 import java.util.List;

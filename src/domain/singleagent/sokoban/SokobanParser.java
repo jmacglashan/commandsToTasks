@@ -1,9 +1,10 @@
 package domain.singleagent.sokoban;
 
-import burlap.oomdp.auxiliary.StateParser;
-import burlap.oomdp.core.State;
 
-public class SokobanParser implements StateParser{
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.legacy.StateParser;
+
+public class SokobanParser implements StateParser {
 
 	SokobanDomain constructor;
 	

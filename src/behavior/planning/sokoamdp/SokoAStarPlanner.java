@@ -1,16 +1,21 @@
 package behavior.planning.sokoamdp;
 
 import behavior.planning.PolicyGenerator;
-import burlap.behavior.singleagent.Policy;
+
+import burlap.behavior.policy.Policy;
 import burlap.behavior.singleagent.planning.deterministic.SDPlannerPolicy;
-import burlap.behavior.singleagent.planning.deterministic.TFGoalCondition;
+
 import burlap.behavior.singleagent.planning.deterministic.informed.Heuristic;
 import burlap.behavior.singleagent.planning.deterministic.informed.astar.AStar;
-import burlap.behavior.statehashing.StateHashFactory;
+
 import burlap.debugtools.DPrint;
+import burlap.oomdp.auxiliary.stateconditiontest.TFGoalCondition;
 import burlap.oomdp.core.*;
+import burlap.oomdp.core.objects.ObjectInstance;
+import burlap.oomdp.core.states.State;
 import burlap.oomdp.singleagent.RewardFunction;
 import burlap.oomdp.singleagent.common.UniformCostRF;
+import burlap.oomdp.statehashing.HashableStateFactory;
 import commands.model3.TrajectoryModule;
 import domain.singleagent.sokoban2.Sokoban2Domain;
 
@@ -23,7 +28,7 @@ public class SokoAStarPlanner implements PolicyGenerator {
 	@Override
 	public Policy getPolicy(Domain domain, State initialState,
 							RewardFunction rf, TerminalFunction tf,
-							StateHashFactory hashingFactory) {
+							HashableStateFactory hashingFactory) {
 		TFGoalCondition gc = new TFGoalCondition(tf);
 
 		AStar planner = new AStar(domain, new UniformCostRF(), gc, hashingFactory, this.getHeuristic(tf));

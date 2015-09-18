@@ -8,28 +8,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import burlap.behavior.singleagent.QValue;
-import burlap.behavior.singleagent.planning.QComputablePlanner;
-import burlap.behavior.singleagent.planning.ValueFunctionPlanner;
-import burlap.behavior.statehashing.StateHashFactory;
-import burlap.behavior.statehashing.StateHashTuple;
+
+import burlap.behavior.policy.GreedyQPolicy;
+import burlap.behavior.policy.Policy;
+import burlap.behavior.singleagent.planning.Planner;
+import burlap.behavior.singleagent.planning.stochastic.DynamicProgramming;
+import burlap.behavior.valuefunction.QFunction;
+import burlap.behavior.valuefunction.QValue;
 import burlap.oomdp.core.AbstractGroundedAction;
 import burlap.oomdp.core.Domain;
-import burlap.oomdp.core.State;
 import burlap.oomdp.core.TerminalFunction;
+import burlap.oomdp.core.states.State;
 import burlap.oomdp.singleagent.Action;
 import burlap.oomdp.singleagent.GroundedAction;
 import burlap.oomdp.singleagent.RewardFunction;
+import burlap.oomdp.statehashing.HashableState;
+import burlap.oomdp.statehashing.HashableStateFactory;
 
-public class DeterministicGoalDirectedPartialVI extends ValueFunctionPlanner
-		implements QComputablePlanner {
+public class DeterministicGoalDirectedPartialVI extends DynamicProgramming
+		implements QFunction, Planner {
 	
 	
-	protected Map <StateHashTuple, Integer>							distanceFunction;
+	protected Map <HashableState, Integer>							distanceFunction;
 
-	public DeterministicGoalDirectedPartialVI(Domain domain, RewardFunction rf, TerminalFunction tf, double gamma, StateHashFactory hashingFactory){
-		this.plannerInit(domain, rf, tf, gamma, hashingFactory);
-		this.distanceFunction = new HashMap<StateHashTuple, Integer>();
+	public DeterministicGoalDirectedPartialVI(Domain domain, RewardFunction rf, TerminalFunction tf, double gamma, HashableStateFactory hashingFactory){
+		this.solverInit(domain, rf, tf, gamma, hashingFactory);
+		this.distanceFunction = new HashMap<HashableState, Integer>();
 	}
 	
 	public boolean planDefinedForState(State s){
@@ -37,25 +41,25 @@ public class DeterministicGoalDirectedPartialVI extends ValueFunctionPlanner
 	}
 	
 	@Override
-	public void planFromState(State initialState) {
+	public Policy planFromState(State initialState) {
 		
-		StateHashTuple shi = this.stateHash(initialState);
+		HashableState shi = this.stateHash(initialState);
 		
 		if(distanceFunction.containsKey(shi)){
-			return ; //no plannning needed
+			return new GreedyQPolicy(this); //no plannning needed
 		}
 		
 		if(tf.isTerminal(initialState)){
 			this.distanceFunction.put(shi, 0);
-			return ; //no searching needed
+			return new GreedyQPolicy(this); //no searching needed
 		}
 		
 		MultiBPtrSearchNode sni = new MultiBPtrSearchNode(shi);
 		
 		LinkedList<MultiBPtrSearchNode> openList = new LinkedList<DeterministicGoalDirectedPartialVI.MultiBPtrSearchNode>();
-		Map <StateHashTuple, MultiBPtrSearchNode> openMap = new HashMap<StateHashTuple, DeterministicGoalDirectedPartialVI.MultiBPtrSearchNode>();
-		Set<StateHashTuple> closedSet = new HashSet<StateHashTuple>();
-		Map <StateHashTuple, Integer> cost = new HashMap<StateHashTuple, Integer>();
+		Map <HashableState, MultiBPtrSearchNode> openMap = new HashMap<HashableState, DeterministicGoalDirectedPartialVI.MultiBPtrSearchNode>();
+		Set<HashableState> closedSet = new HashSet<HashableState>();
+		Map <HashableState, Integer> cost = new HashMap<HashableState, Integer>();
 		
 		List<MultiBPtrSearchNode> nearestCachedSolutions = new ArrayList<DeterministicGoalDirectedPartialVI.MultiBPtrSearchNode>();
 		int cachedSolutionQuality = Integer.MAX_VALUE;
@@ -94,9 +98,9 @@ public class DeterministicGoalDirectedPartialVI extends ValueFunctionPlanner
 			
 			//otherwise we need to expand
 			for(Action a : actions){
-				List <GroundedAction> gas = sn.sh.s.getAllGroundedActionsFor(a);
+				List <GroundedAction> gas = a.getAllApplicableGroundedActions(sn.sh.s);
 				for(GroundedAction ga : gas){
-					StateHashTuple shp = this.stateHash(ga.executeIn(sn.sh.s));
+					HashableState shp = this.stateHash(ga.executeIn(sn.sh.s));
 					if(closedSet.contains(shp)){
 						continue; //already found better path to this node;
 					}
@@ -149,7 +153,7 @@ public class DeterministicGoalDirectedPartialVI extends ValueFunctionPlanner
 		}
 		
 		
-		Set <StateHashTuple> markedNodes = new HashSet<StateHashTuple>();
+		Set <HashableState> markedNodes = new HashSet<HashableState>();
 		if(goalNode != null){
 			this.setDistanceFunctionFromSolutions(goalNode, cost.get(goalNode.sh), cost, markedNodes);
 		}
@@ -162,11 +166,13 @@ public class DeterministicGoalDirectedPartialVI extends ValueFunctionPlanner
 			}
 		}
 
+		return new GreedyQPolicy(this);
+
 	}
 
 	
 	
-	protected void setDistanceFunctionFromSolutions(MultiBPtrSearchNode sourceNode, int totalDistance, Map <StateHashTuple, Integer> cost, Set <StateHashTuple> markedNodes){
+	protected void setDistanceFunctionFromSolutions(MultiBPtrSearchNode sourceNode, int totalDistance, Map <HashableState, Integer> cost, Set <HashableState> markedNodes){
 		
 		if(markedNodes.contains(sourceNode.sh)){
 			return ; //already cached this distance and all found paths to it
@@ -181,7 +187,7 @@ public class DeterministicGoalDirectedPartialVI extends ValueFunctionPlanner
 		
 	}
 	
-	protected MultiBPtrSearchNode getNodeForState(StateHashTuple sh, List <MultiBPtrSearchNode> nodes){
+	protected MultiBPtrSearchNode getNodeForState(HashableState sh, List <MultiBPtrSearchNode> nodes){
 		
 		for(MultiBPtrSearchNode node : nodes){
 			if(node.sh.equals(sh)){
@@ -199,7 +205,7 @@ public class DeterministicGoalDirectedPartialVI extends ValueFunctionPlanner
 		List <QValue> res = new ArrayList<QValue>();
 		
 		for(Action a : actions){
-			List <GroundedAction> gas = s.getAllGroundedActionsFor(a);
+			List <GroundedAction> gas = a.getAllApplicableGroundedActions(s);
 			for(GroundedAction ga : gas){
 				res.add(this.getQ(s, ga));
 			}
@@ -211,8 +217,8 @@ public class DeterministicGoalDirectedPartialVI extends ValueFunctionPlanner
 	@Override
 	public QValue getQ(State s, AbstractGroundedAction a) {
 		
-		State sp = a.executeIn(s);
-		StateHashTuple shp = this.stateHash(sp);
+		State sp = ((GroundedAction)a).executeIn(s);
+		HashableState shp = this.stateHash(sp);
 		double r = rf.reward(s, (GroundedAction)a, sp);
 		double vp = this.vFor(shp);
 		double q = r + (this.gamma*vp);
@@ -224,7 +230,7 @@ public class DeterministicGoalDirectedPartialVI extends ValueFunctionPlanner
 	
 	
 	
-	protected double vFor(StateHashTuple sh){
+	protected double vFor(HashableState sh){
 		
 		Integer D = this.distanceFunction.get(sh);
 		if(D == null){
@@ -245,17 +251,17 @@ public class DeterministicGoalDirectedPartialVI extends ValueFunctionPlanner
 	
 	class MultiBPtrSearchNode{
 		
-		public StateHashTuple sh;
+		public HashableState sh;
 		public List<MultiBPtrSearchNode> backPtrs;
 		public List<GroundedAction> generartingActions;
 		
-		public MultiBPtrSearchNode(StateHashTuple sh){
+		public MultiBPtrSearchNode(HashableState sh){
 			this.sh = sh;
 			this.backPtrs = new ArrayList<DeterministicGoalDirectedPartialVI.MultiBPtrSearchNode>();
 			this.generartingActions = new ArrayList<GroundedAction>();
 		}
 		
-		public MultiBPtrSearchNode(StateHashTuple sh, MultiBPtrSearchNode bptr, GroundedAction ga){
+		public MultiBPtrSearchNode(HashableState sh, MultiBPtrSearchNode bptr, GroundedAction ga){
 			this.sh = sh;
 			this.backPtrs = new ArrayList<DeterministicGoalDirectedPartialVI.MultiBPtrSearchNode>();
 			this.generartingActions = new ArrayList<GroundedAction>();

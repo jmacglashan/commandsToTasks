@@ -1,18 +1,24 @@
 package behavior.planning.sokoamdp;
 
+import burlap.behavior.policy.Policy;
 import burlap.behavior.singleagent.EpisodeAnalysis;
-import burlap.behavior.singleagent.Policy;
-import burlap.behavior.singleagent.planning.StateConditionTest;
-import burlap.behavior.singleagent.planning.deterministic.GoalConditionTF;
+
 import burlap.behavior.singleagent.planning.deterministic.SDPlannerPolicy;
 import burlap.behavior.singleagent.planning.deterministic.uninformed.bfs.BFS;
-import burlap.behavior.statehashing.NameDependentStateHashFactory;
+
 import burlap.oomdp.auxiliary.DomainGenerator;
+import burlap.oomdp.auxiliary.common.GoalConditionTF;
+import burlap.oomdp.auxiliary.stateconditiontest.StateConditionTest;
 import burlap.oomdp.core.*;
-import burlap.oomdp.singleagent.Action;
-import burlap.oomdp.singleagent.SADomain;
+import burlap.oomdp.core.objects.MutableObjectInstance;
+import burlap.oomdp.core.objects.ObjectInstance;
+import burlap.oomdp.core.states.MutableState;
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.singleagent.*;
 import burlap.oomdp.singleagent.common.UniformCostRF;
+import burlap.oomdp.statehashing.SimpleHashableStateFactory;
 import domain.singleagent.sokoban2.Sokoban2Domain;
+import sun.management.resources.agent;
 
 import java.util.List;
 
@@ -55,21 +61,21 @@ public class SokoAMDP implements DomainGenerator {
 
 	public static State projectToAMDPState(State s, Domain aDomain){
 
-		State as = new State();
+		State as = new MutableState();
 
-		ObjectInstance aagent = new ObjectInstance(aDomain.getObjectClass(Sokoban2Domain.CLASSAGENT), Sokoban2Domain.CLASSAGENT);
+		ObjectInstance aagent = new MutableObjectInstance(aDomain.getObjectClass(Sokoban2Domain.CLASSAGENT), Sokoban2Domain.CLASSAGENT);
 		as.addObject(aagent);
 
 
 		List<ObjectInstance> rooms = s.getObjectsOfClass(Sokoban2Domain.CLASSROOM);
 		for(ObjectInstance r : rooms){
-			ObjectInstance ar = new ObjectInstance(aDomain.getObjectClass(Sokoban2Domain.CLASSROOM), r.getName());
+			ObjectInstance ar = new MutableObjectInstance(aDomain.getObjectClass(Sokoban2Domain.CLASSROOM), r.getName());
 			as.addObject(ar);
 		}
 
 		List<ObjectInstance> doors = s.getObjectsOfClass(Sokoban2Domain.CLASSDOOR);
 		for(ObjectInstance d : doors){
-			ObjectInstance dr = new ObjectInstance(aDomain.getObjectClass(Sokoban2Domain.CLASSDOOR), d.getName());
+			ObjectInstance dr = new MutableObjectInstance(aDomain.getObjectClass(Sokoban2Domain.CLASSDOOR), d.getName());
 			as.addObject(dr);
 		}
 
@@ -132,22 +138,34 @@ public class SokoAMDP implements DomainGenerator {
 
 
 
-	public static class GotoRegion extends Action {
+	public static class GotoRegion extends ObjectParameterizedAction implements FullActionModel {
 
 		public GotoRegion(String name, Domain domain, String obClass){
-			super(name, domain, obClass);
+			super(name, domain, new String[]{obClass});
 		}
 
 
 		@Override
-		public boolean applicableInState(State s, String[] params) {
+		public boolean parametersAreObjectIdentifierIndependent() {
+			return false;
+		}
+
+		@Override
+		public boolean isPrimitive() {
+			return true;
+		}
+
+		@Override
+		public boolean applicableInState(State s, GroundedAction ga) {
+
+			ObjectParameterizedGroundedAction oga = (ObjectParameterizedGroundedAction)ga;
 
 			//get the region where the agent currently is
 			ObjectInstance agent = s.getFirstObjectOfClass(Sokoban2Domain.CLASSAGENT);
 			ObjectInstance curRegion = s.getObject(agent.getStringValForAttribute(ATTINREGION));
 
 			//is the param connected to this region?
-			if(curRegion.getAllRelationalTargets(ATTCONNECTED).contains(params[0])){
+			if(curRegion.getAllRelationalTargets(ATTCONNECTED).contains(oga.params[0])){
 				return true;
 			}
 
@@ -155,15 +173,16 @@ public class SokoAMDP implements DomainGenerator {
 		}
 
 		@Override
-		protected State performActionHelper(State s, String[] params) {
+		protected State performActionHelper(State s, GroundedAction ga) {
+			ObjectParameterizedGroundedAction oga = (ObjectParameterizedGroundedAction)ga;
 			ObjectInstance agent = s.getFirstObjectOfClass(Sokoban2Domain.CLASSAGENT);
-			agent.addRelationalTarget(ATTINREGION, params[0]);
+			agent.addRelationalTarget(ATTINREGION, oga.params[0]);
 			return s;
 		}
 
 		@Override
-		public List<TransitionProbability> getTransitions(State s, String[] params) {
-			return this.deterministicTransition(s, params);
+		public List<TransitionProbability> getTransitions(State s, GroundedAction ga) {
+			return this.deterministicTransition(s, ga);
 		}
 	}
 
@@ -206,7 +225,7 @@ public class SokoAMDP implements DomainGenerator {
 		//exp.exploreFromState(as);
 
 		StateConditionTest gc = new InRegionGC("room1");
-		BFS bfs = new BFS(adomain, gc, new NameDependentStateHashFactory());
+		BFS bfs = new BFS(adomain, gc, new SimpleHashableStateFactory(false));
 		bfs.planFromState(as);
 
 		Policy p = new SDPlannerPolicy(bfs);

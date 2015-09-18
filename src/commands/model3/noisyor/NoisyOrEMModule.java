@@ -6,8 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import burlap.behavior.statehashing.StateHashFactory;
 
+
+import burlap.oomdp.statehashing.HashableStateFactory;
 import commands.model3.Model3Controller;
 import commands.model3.StringValue;
 import commands.model3.TaskModule;
@@ -27,7 +28,7 @@ import generativemodel.RVariableValue;
 public class NoisyOrEMModule extends EMModule {
 
 	protected List<Map<TopicSetRVal, Double>>			jointTopicAndTrajectory;
-	protected StateHashFactory							hashingFactory;
+	protected HashableStateFactory hashingFactory;
 	
 	protected HashedAggregator<String> 					jointWordCounts;
 	protected HashedAggregator<String> 					singleTopicCounts;
@@ -36,7 +37,7 @@ public class NoisyOrEMModule extends EMModule {
 	protected boolean									needsAggreatorReset = true;
 	
 	
-	public NoisyOrEMModule(StateHashFactory hashingFactory){
+	public NoisyOrEMModule(HashableStateFactory hashingFactory){
 		this.jointTopicAndTrajectory = new ArrayList<Map<TopicSetRVal,Double>>();
 		this.hashingFactory = hashingFactory;
 	}

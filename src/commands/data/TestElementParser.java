@@ -1,5 +1,8 @@
 package commands.data;
 
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.legacy.StateParser;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -8,8 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import burlap.oomdp.auxiliary.StateParser;
-import burlap.oomdp.core.State;
+
 
 public class TestElementParser {
 

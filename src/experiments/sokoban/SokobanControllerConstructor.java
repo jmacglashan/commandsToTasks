@@ -1,10 +1,12 @@
 package experiments.sokoban;
 
-import burlap.behavior.statehashing.NameDependentStateHashFactory;
-import burlap.behavior.statehashing.StateHashFactory;
-import burlap.oomdp.auxiliary.StateParser;
+
+
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.GroundedProp;
+import burlap.oomdp.legacy.StateParser;
+import burlap.oomdp.statehashing.HashableStateFactory;
+import burlap.oomdp.statehashing.SimpleHashableStateFactory;
 import commands.data.TrainingElement;
 import commands.data.TrainingElementParser;
 import commands.model3.GPConjunction;
@@ -32,7 +34,7 @@ public class SokobanControllerConstructor {
 
 	public Sokoban2Domain domainGenerator;
 	public Domain domain;
-	public StateHashFactory hashingFactory;
+	public HashableStateFactory hashingFactory;
 	public List<GPConjunction> liftedTaskDescriptions;
 	public StateParser sp;
 	public StateParser cacheStateParser;
@@ -42,7 +44,7 @@ public class SokobanControllerConstructor {
 
 		this.domainGenerator = new Sokoban2Domain();
 		this.domain = this.domainGenerator.generateDomain();
-		this.hashingFactory = new NameDependentStateHashFactory();
+		this.hashingFactory = new SimpleHashableStateFactory(false);
 		this.liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 
 		GPConjunction atr = new GPConjunction();

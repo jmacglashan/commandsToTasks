@@ -14,12 +14,20 @@ import java.util.Map;
 import java.util.Set;
 
 import burlap.oomdp.auxiliary.DomainGenerator;
-import burlap.oomdp.auxiliary.StateParser;
+
 import burlap.oomdp.core.*;
 import burlap.oomdp.core.Attribute.AttributeType;
+import burlap.oomdp.core.objects.MutableObjectInstance;
+import burlap.oomdp.core.objects.ObjectInstance;
+import burlap.oomdp.core.states.MutableState;
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.legacy.StateParser;
 import burlap.oomdp.singleagent.Action;
+import burlap.oomdp.singleagent.FullActionModel;
 import burlap.oomdp.singleagent.GroundedAction;
 import burlap.oomdp.singleagent.SADomain;
+import burlap.oomdp.singleagent.common.SimpleAction;
+import burlap.oomdp.singleagent.common.SimpleGroundedAction;
 import burlap.oomdp.singleagent.explorer.TerminalExplorer;
 import burlap.oomdp.singleagent.explorer.VisualExplorer;
 import burlap.oomdp.visualizer.Visualizer;
@@ -274,12 +282,12 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 
 		//assign keys for command line interface
 		if(tLocation != -1){
-			TerminalExplorer exp = new TerminalExplorer(domain);
+			TerminalExplorer exp = new TerminalExplorer(domain, st);
 			exp.addActionShortHand("n", ACTIONNORTH);
 			exp.addActionShortHand("s", ACTIONSOUTH);
 			exp.addActionShortHand("e", ACTIONEAST);
 			exp.addActionShortHand("w", ACTIONWEST);
-			exp.exploreFromState(st);	
+			exp.explore();
 		}	
 		//read trajectory from file
 		else if(cLocation != -1){
@@ -480,16 +488,16 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 
 		this.generateDomain(); //make sure the domain is created first
 
-		ObjectInstance agent = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(AGENTCLASS), AGENTCLASS + 0);
-		ObjectInstance block = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(BLOCKCLASS), BLOCKCLASS + 0);
-		ObjectInstance block2 = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(BLOCKCLASS), BLOCKCLASS + 1);
-		ObjectInstance room = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 0);
-		ObjectInstance room2 = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 1);
-		ObjectInstance room3 = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 2);
-		ObjectInstance door = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + 0);
-		ObjectInstance door2 = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + 1);
+		ObjectInstance agent = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(AGENTCLASS), AGENTCLASS + 0);
+		ObjectInstance block = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(BLOCKCLASS), BLOCKCLASS + 0);
+		ObjectInstance block2 = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(BLOCKCLASS), BLOCKCLASS + 1);
+		ObjectInstance room = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 0);
+		ObjectInstance room2 = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 1);
+		ObjectInstance room3 = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 2);
+		ObjectInstance door = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + 0);
+		ObjectInstance door2 = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + 1);
 
-		State st = new State();
+		State st = new MutableState();
 		st.addObject(room);
 		st.addObject(room2);
 		st.addObject(room3);
@@ -506,20 +514,20 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		
 		this.generateDomain(); //make sure the domain is created first
 
-		ObjectInstance agent = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(AGENTCLASS), AGENTCLASS + 0);
-		ObjectInstance room = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 0);
-		ObjectInstance room2 = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 1);
-		ObjectInstance room3 = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 2);
-		ObjectInstance door = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + 0);
-		ObjectInstance door2 = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + 1);
+		ObjectInstance agent = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(AGENTCLASS), AGENTCLASS + 0);
+		ObjectInstance room = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 0);
+		ObjectInstance room2 = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 1);
+		ObjectInstance room3 = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 2);
+		ObjectInstance door = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + 0);
+		ObjectInstance door2 = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + 1);
 		
 		List <ObjectInstance> blocks = new ArrayList<ObjectInstance>();
 		for(int i = 0; i < n; i++){
-			ObjectInstance block = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(BLOCKCLASS), BLOCKCLASS + i);
+			ObjectInstance block = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(BLOCKCLASS), BLOCKCLASS + i);
 			blocks.add(block);
 		}
 
-		State st = new State();
+		State st = new MutableState();
 		st.addObject(room);
 		st.addObject(room2);
 		st.addObject(room3);
@@ -540,26 +548,26 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		
 		this.generateDomain(); //make sure the domain is created first
 
-		ObjectInstance agent = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(AGENTCLASS), AGENTCLASS + 0);
-		ObjectInstance room = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 0);
-		ObjectInstance room2 = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 1);
-		ObjectInstance room3 = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 2);
+		ObjectInstance agent = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(AGENTCLASS), AGENTCLASS + 0);
+		ObjectInstance room = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 0);
+		ObjectInstance room2 = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 1);
+		ObjectInstance room3 = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + 2);
 		
 		
 		
 		List <ObjectInstance> doors = new ArrayList<ObjectInstance>();
 		for(int i = 0; i < nd; i++){
-			ObjectInstance door = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + i);
+			ObjectInstance door = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + i);
 			doors.add(door);
 		}
 		
 		List <ObjectInstance> blocks = new ArrayList<ObjectInstance>();
 		for(int i = 0; i < nb; i++){
-			ObjectInstance block = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(BLOCKCLASS), BLOCKCLASS + i);
+			ObjectInstance block = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(BLOCKCLASS), BLOCKCLASS + i);
 			blocks.add(block);
 		}
 
-		State st = new State();
+		State st = new MutableState();
 		st.addObject(room);
 		st.addObject(room2);
 		st.addObject(room3);
@@ -595,16 +603,16 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 			}
 		}
 
-		List<ObjectInstance> rooms = st.getObjectsOfTrueClass(ROOMCLASS);
-		List<ObjectInstance> doors = st.getObjectsOfTrueClass(DOORCLASS);
+		List<ObjectInstance> rooms = st.getObjectsOfClass(ROOMCLASS);
+		List<ObjectInstance> doors = st.getObjectsOfClass(DOORCLASS);
 
 		for (int i = 0; i < rooms.size(); i++){
 			ObjectInstance room = rooms.get(i);
 
-			int topX = room.getDiscValForAttribute(TOPXATTNAME);
-			int topY = room.getDiscValForAttribute(TOPYATTNAME);
-			int botX = room.getDiscValForAttribute(BOTTOMXATTNAME);
-			int botY = room.getDiscValForAttribute(BOTTOMYATTNAME);
+			int topX = room.getIntValForAttribute(TOPXATTNAME);
+			int topY = room.getIntValForAttribute(TOPYATTNAME);
+			int botX = room.getIntValForAttribute(BOTTOMXATTNAME);
+			int botY = room.getIntValForAttribute(BOTTOMYATTNAME);
 
 			//put walls at the edges of rooms
 			for(int j = 0; j < MAXX; j++){
@@ -629,10 +637,10 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		for (int i = 0; i < doors.size(); i++){
 			ObjectInstance door = doors.get(i);
 
-			int topX = door.getDiscValForAttribute(TOPXATTNAME);
-			int topY = door.getDiscValForAttribute(TOPYATTNAME);
-			int botX = door.getDiscValForAttribute(BOTTOMXATTNAME);
-			int botY = door.getDiscValForAttribute(BOTTOMYATTNAME);
+			int topX = door.getIntValForAttribute(TOPXATTNAME);
+			int topY = door.getIntValForAttribute(TOPYATTNAME);
+			int botX = door.getIntValForAttribute(BOTTOMXATTNAME);
+			int botY = door.getIntValForAttribute(BOTTOMYATTNAME);
 
 			for(int j = 0; j < MAXX; j++){
 				for(int k = 0; k < MAXY; k++){
@@ -655,16 +663,16 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 
 	/**
 	 * Attempts to move the agent into the given position, taking into account walls and blocks
-	 * @param the current state
-	 * @param the attempted new X position of the agent
-	 * @param the attempted new Y position of the agent
+	 * @param st the current state
+	 * @param x the attempted new X position of the agent
+	 * @param y the attempted new Y position of the agent
 	 */
 	public static void move(State st, int x, int y){
 
-		ObjectInstance agent = st.getObjectsOfTrueClass(AGENTCLASS).get(0);
-		List<ObjectInstance> blocks = st.getObjectsOfTrueClass(BLOCKCLASS);
-		int curX = agent.getDiscValForAttribute(XATTNAME);
-		int curY = agent.getDiscValForAttribute(YATTNAME);
+		ObjectInstance agent = st.getObjectsOfClass(AGENTCLASS).get(0);
+		List<ObjectInstance> blocks = st.getObjectsOfClass(BLOCKCLASS);
+		int curX = agent.getIntValForAttribute(XATTNAME);
+		int curY = agent.getIntValForAttribute(YATTNAME);
 		int nx = curX + x;
 		int ny = curY + y;
 
@@ -684,8 +692,8 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		//check to see if you're moving into a block
 		for (int i = 0; i < blocks.size(); i++){
 			ObjectInstance block = blocks.get(i);
-			int blockX = block.getDiscValForAttribute(XATTNAME);
-			int blockY = block.getDiscValForAttribute(YATTNAME);
+			int blockX = block.getIntValForAttribute(XATTNAME);
+			int blockY = block.getIntValForAttribute(YATTNAME);
 
 			if(nx == blockX && ny == blockY){ //block found
 				int bx = pushBlockCoords(curX, curY, nx, ny)[0];
@@ -704,9 +712,9 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 	//move function for pushing blocks
 	public static boolean moveBlock(State st, ObjectInstance block, int x, int y){
 
-		int curX = block.getDiscValForAttribute(XATTNAME);
-		int curY = block.getDiscValForAttribute(YATTNAME);
-		List<ObjectInstance> blocks = st.getObjectsOfTrueClass(BLOCKCLASS);
+		int curX = block.getIntValForAttribute(XATTNAME);
+		int curY = block.getIntValForAttribute(YATTNAME);
+		List<ObjectInstance> blocks = st.getObjectsOfClass(BLOCKCLASS);
 		int nx = x;
 		int ny = y;
 
@@ -723,8 +731,8 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		//check for collisions with other blocks
 		for (int i = 0; i < blocks.size(); i++){
 			ObjectInstance block2 = blocks.get(i);
-			int blockX = block2.getDiscValForAttribute(XATTNAME);
-			int blockY = block2.getDiscValForAttribute(YATTNAME);
+			int blockX = block2.getIntValForAttribute(XATTNAME);
+			int blockY = block2.getIntValForAttribute(YATTNAME);
 
 			if(nx == blockX && ny == blockY){ //block cannot move there
 				int bx = pushBlockCoords(curX, curY, nx, ny)[0];
@@ -774,12 +782,12 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 				return false;
 			}
 
-			int aX = block.getDiscValForAttribute(XATTNAME);
-			int aY = block.getDiscValForAttribute(YATTNAME);
-			int rX1 = room.getDiscValForAttribute(TOPXATTNAME);
-			int rX2 = room.getDiscValForAttribute(BOTTOMXATTNAME);
-			int rY1 = room.getDiscValForAttribute(TOPYATTNAME);
-			int rY2 = room.getDiscValForAttribute(BOTTOMYATTNAME);
+			int aX = block.getIntValForAttribute(XATTNAME);
+			int aY = block.getIntValForAttribute(YATTNAME);
+			int rX1 = room.getIntValForAttribute(TOPXATTNAME);
+			int rX2 = room.getIntValForAttribute(BOTTOMXATTNAME);
+			int rY1 = room.getIntValForAttribute(TOPYATTNAME);
+			int rY2 = room.getIntValForAttribute(BOTTOMYATTNAME);
 
 			if(aX < rX2 && aX > rX1 && aY > rY2 && aY < rY1){
 				return true;
@@ -795,7 +803,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsStarPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(SHAPEATTNAME) == 0){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(SHAPEATTNAME) == 0){ return true; }
 			return false;
 		}
 	}
@@ -805,7 +813,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsMoonPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(SHAPEATTNAME) == 1){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(SHAPEATTNAME) == 1){ return true; }
 			return false;
 		}
 	}
@@ -814,7 +822,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsCirclePF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(SHAPEATTNAME) == 2){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(SHAPEATTNAME) == 2){ return true; }
 			return false;
 		}
 	}
@@ -823,7 +831,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsSmileyPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(SHAPEATTNAME) == 3){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(SHAPEATTNAME) == 3){ return true; }
 			return false;
 		}
 	}
@@ -832,7 +840,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsSquarePF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(SHAPEATTNAME) == 4){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(SHAPEATTNAME) == 4){ return true; }
 			return false;
 		}
 	}
@@ -841,7 +849,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsBlackPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 0){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 0){ return true; }
 			return false;
 		}
 	}
@@ -850,7 +858,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsBluePF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 1){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 1){ return true; }
 			return false;
 		}
 	}
@@ -859,7 +867,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsCyanPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 2){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 2){ return true; }
 			return false;
 		}
 	}
@@ -868,7 +876,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsDarkGrayPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 3){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 3){ return true; }
 			return false;
 		}
 	}
@@ -877,7 +885,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsGrayPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 4){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 4){ return true; }
 			return false;
 		}
 	}
@@ -886,7 +894,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsGreenPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 5){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 5){ return true; }
 			return false;
 		}
 	}
@@ -895,7 +903,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsLightGrayPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 6){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 6){ return true; }
 			return false;
 		}
 	}
@@ -904,7 +912,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsMagentaPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 7){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 7){ return true; }
 			return false;
 		}
 	}
@@ -913,7 +921,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsOrangePF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 8){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 8){ return true; }
 			return false;
 		}
 	}
@@ -922,7 +930,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsPinkPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 9){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 9){ return true; }
 			return false;
 		}
 	}
@@ -931,7 +939,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsRedPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 10){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 10){ return true; }
 			return false;
 		}
 	}
@@ -940,7 +948,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsWhitePF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 11){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 11){ return true; }
 			return false;
 		}
 	}
@@ -949,7 +957,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public IsYellowPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 1){ return false; }
-			if (st.getObject(params[0]).getDiscValForAttribute(COLORATTNAME) == 12){ return true; }
+			if (st.getObject(params[0]).getIntValForAttribute(COLORATTNAME) == 12){ return true; }
 			return false;
 		}
 	}
@@ -959,12 +967,12 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public NextToPF(String name, Domain domain, String[] parameterClasses) {super(name, domain, parameterClasses);}
 		public boolean isTrue(State st, String[] params) {
 			if(params.length != 2){ return false; }
-			int topX = st.getObject(params[1]).getDiscValForAttribute(TOPXATTNAME);
-			int botX = st.getObject(params[1]).getDiscValForAttribute(BOTTOMXATTNAME);
-			int topY = st.getObject(params[1]).getDiscValForAttribute(TOPYATTNAME);
-			int botY = st.getObject(params[1]).getDiscValForAttribute(BOTTOMYATTNAME);
-			int x = st.getObject(params[0]).getDiscValForAttribute(XATTNAME);
-			int y = st.getObject(params[0]).getDiscValForAttribute(YATTNAME);
+			int topX = st.getObject(params[1]).getIntValForAttribute(TOPXATTNAME);
+			int botX = st.getObject(params[1]).getIntValForAttribute(BOTTOMXATTNAME);
+			int topY = st.getObject(params[1]).getIntValForAttribute(TOPYATTNAME);
+			int botY = st.getObject(params[1]).getIntValForAttribute(BOTTOMYATTNAME);
+			int x = st.getObject(params[0]).getIntValForAttribute(XATTNAME);
+			int y = st.getObject(params[0]).getIntValForAttribute(YATTNAME);
 			if ((topX - 1) == x && y <= topY && y >= botY) { return true; }
 			else if ((botX + 1) == x && y <= topY && y >= botY) { return true; }
 			else if ((topY + 1) == y && x <= botX && x >= topX) { return true; }
@@ -996,59 +1004,59 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		return coords;
 	}
 
-	class NorthAction extends Action{
-		public NorthAction(String name, Domain domain, String parameterClasses) {super(name, domain, parameterClasses);}
-		public NorthAction(String name, Domain domain, String [] parameterClasses) {super(name, domain, parameterClasses);}
-		protected State performActionHelper(State st, String[] params) {
+	class NorthAction extends SimpleAction implements FullActionModel{
+		public NorthAction(String name, Domain domain, String parameterClasses) {super(name, domain);}
+		public NorthAction(String name, Domain domain, String [] parameterClasses) {super(name, domain);}
+		protected State performActionHelper(State st, GroundedAction ga) {
 			SokobanDomain.createMap(st);
 			SokobanDomain.move(st, 0, 1);
 			return st;
 		}
 		@Override
-		public List<TransitionProbability> getTransitions(State s, String [] params){
-			return this.deterministicTransition(s, params);
+		public List<TransitionProbability> getTransitions(State s, GroundedAction ga){
+			return this.deterministicTransition(s, ga);
 		}
 	}
 
-	class SouthAction extends Action{
-		public SouthAction(String name, Domain domain, String parameterClasses) {super(name, domain, parameterClasses);}
-		public SouthAction(String name, Domain domain, String [] parameterClasses) {super(name, domain, parameterClasses);}
-		protected State performActionHelper(State st, String[] params) {
+	class SouthAction extends SimpleAction implements FullActionModel{
+		public SouthAction(String name, Domain domain, String parameterClasses) {super(name, domain);}
+		public SouthAction(String name, Domain domain, String [] parameterClasses) {super(name, domain);}
+		protected State performActionHelper(State st, GroundedAction ga) {
 			SokobanDomain.createMap(st);
 			SokobanDomain.move(st, 0, -1);
 			return st;
 		}
 		@Override
-		public List<TransitionProbability> getTransitions(State s, String [] params){
-			return this.deterministicTransition(s, params);
+		public List<TransitionProbability> getTransitions(State s, GroundedAction ga){
+			return this.deterministicTransition(s, ga);
 		}
 	}
 
-	class EastAction extends Action{
-		public EastAction(String name, Domain domain, String parameterClasses) {super(name, domain, parameterClasses);}
-		public EastAction(String name, Domain domain, String [] parameterClasses) {super(name, domain, parameterClasses);}
-		protected State performActionHelper(State st, String[] params) {
+	class EastAction extends SimpleAction implements FullActionModel{
+		public EastAction(String name, Domain domain, String parameterClasses) {super(name, domain);}
+		public EastAction(String name, Domain domain, String [] parameterClasses) {super(name, domain);}
+		protected State performActionHelper(State st, GroundedAction ga) {
 			SokobanDomain.createMap(st);
 			SokobanDomain.move(st, 1, 0);
 			return st;
 		}
 		@Override
-		public List<TransitionProbability> getTransitions(State s, String [] params){
-			return this.deterministicTransition(s, params);
+		public List<TransitionProbability> getTransitions(State s, GroundedAction ga){
+			return this.deterministicTransition(s, ga);
 		}
 	}
 
-	class WestAction extends Action{
-		public WestAction(String name, Domain domain, String parameterClasses) {super(name, domain, parameterClasses);}
-		public WestAction(String name, Domain domain, String [] parameterClasses) {super(name, domain, parameterClasses);}
-		protected State performActionHelper(State st, String[] params) {
+	class WestAction extends SimpleAction implements FullActionModel{
+		public WestAction(String name, Domain domain, String parameterClasses) {super(name, domain);}
+		public WestAction(String name, Domain domain, String [] parameterClasses) {super(name, domain);}
+		protected State performActionHelper(State st, GroundedAction ga) {
 			SokobanDomain.createMap(st);
 			SokobanDomain.move(st, -1, 0);
 			return st;
 		}
 		@Override
-		public List<TransitionProbability> getTransitions(State s, String [] params){
-			return this.deterministicTransition(s, params);
+		public List<TransitionProbability> getTransitions(State s, GroundedAction ga){
+			return this.deterministicTransition(s, ga);
 		}
 	}
 
@@ -1058,47 +1066,47 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 	 */
 	public String stateToString(State s) {
 		String output = "";
-		List<ObjectInstance> rooms = s.getObjectsOfTrueClass(ROOMCLASS);
-		List<ObjectInstance> doors = s.getObjectsOfTrueClass(DOORCLASS);
-		List<ObjectInstance> blocks = s.getObjectsOfTrueClass(BLOCKCLASS);
-		List<ObjectInstance> agents = s.getObjectsOfTrueClass(AGENTCLASS);
+		List<ObjectInstance> rooms = s.getObjectsOfClass(ROOMCLASS);
+		List<ObjectInstance> doors = s.getObjectsOfClass(DOORCLASS);
+		List<ObjectInstance> blocks = s.getObjectsOfClass(BLOCKCLASS);
+		List<ObjectInstance> agents = s.getObjectsOfClass(AGENTCLASS);
 
 		for (int i = 0; i < rooms.size(); i++){
 			output += "room,";
-			output = output + rooms.get(i).getDiscValForAttribute(COLORATTNAME) + ",";
-			output = output + rooms.get(i).getDiscValForAttribute(TOPXATTNAME) + ",";
-			output = output + rooms.get(i).getDiscValForAttribute(TOPYATTNAME) + ",";
-			output = output + rooms.get(i).getDiscValForAttribute(BOTTOMXATTNAME) + ",";
-			output = output + rooms.get(i).getDiscValForAttribute(BOTTOMYATTNAME) + " ";
+			output = output + rooms.get(i).getIntValForAttribute(COLORATTNAME) + ",";
+			output = output + rooms.get(i).getIntValForAttribute(TOPXATTNAME) + ",";
+			output = output + rooms.get(i).getIntValForAttribute(TOPYATTNAME) + ",";
+			output = output + rooms.get(i).getIntValForAttribute(BOTTOMXATTNAME) + ",";
+			output = output + rooms.get(i).getIntValForAttribute(BOTTOMYATTNAME) + " ";
 		}
 
 		for (int i = 0; i < doors.size(); i++){
 			output += "door,";
-			output = output + doors.get(i).getDiscValForAttribute(TOPXATTNAME) + ",";
-			output = output + doors.get(i).getDiscValForAttribute(TOPYATTNAME) + ",";
-			output = output + doors.get(i).getDiscValForAttribute(BOTTOMXATTNAME) + ",";
-			output = output + doors.get(i).getDiscValForAttribute(BOTTOMYATTNAME) + " ";
+			output = output + doors.get(i).getIntValForAttribute(TOPXATTNAME) + ",";
+			output = output + doors.get(i).getIntValForAttribute(TOPYATTNAME) + ",";
+			output = output + doors.get(i).getIntValForAttribute(BOTTOMXATTNAME) + ",";
+			output = output + doors.get(i).getIntValForAttribute(BOTTOMYATTNAME) + " ";
 		}
 
 		for (int i = 0; i < blocks.size(); i++){
 			output += "block,";
-			output = output + blocks.get(i).getDiscValForAttribute(COLORATTNAME) + ",";
-			output = output + blocks.get(i).getDiscValForAttribute(SHAPEATTNAME) + ",";
-			output = output + blocks.get(i).getDiscValForAttribute(XATTNAME) + ",";
-			output = output + blocks.get(i).getDiscValForAttribute(YATTNAME) + " ";
+			output = output + blocks.get(i).getIntValForAttribute(COLORATTNAME) + ",";
+			output = output + blocks.get(i).getIntValForAttribute(SHAPEATTNAME) + ",";
+			output = output + blocks.get(i).getIntValForAttribute(XATTNAME) + ",";
+			output = output + blocks.get(i).getIntValForAttribute(YATTNAME) + " ";
 		}
 
 		for (int i = 0; i < agents.size(); i++){
 			output += "agent,";
-			output = output + agents.get(i).getDiscValForAttribute(XATTNAME) + ",";
-			output = output + agents.get(i).getDiscValForAttribute(YATTNAME);
+			output = output + agents.get(i).getIntValForAttribute(XATTNAME) + ",";
+			output = output + agents.get(i).getIntValForAttribute(YATTNAME);
 		}
 		return output;
 	}
 
 	@Override
 	public State stringToState(String str) {
-		State st = new State();
+		State st = new MutableState();
 		int rooms = 0;
 		int doors = 0;
 		int blocks = 0;
@@ -1107,7 +1115,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		for (int i = 0; i < objects.length; i++){
 			String[] splitobject = objects[i].split(",");
 			if (splitobject[0].equals("room")){
-				ObjectInstance room = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + rooms);
+				ObjectInstance room = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(ROOMCLASS), ROOMCLASS + rooms);
 				room.setValue(COLORATTNAME, colors.get(Integer.parseInt(splitobject[1])));
 				room.setValue(TOPXATTNAME, Integer.parseInt(splitobject[2]));
 				room.setValue(TOPYATTNAME, Integer.parseInt(splitobject[3]));
@@ -1117,7 +1125,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 				rooms++;
 			}
 			else if (splitobject[0].equals("door")){
-				ObjectInstance door = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + doors);
+				ObjectInstance door = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(DOORCLASS), DOORCLASS + doors);
 				door.setValue(TOPXATTNAME, Integer.parseInt(splitobject[1]));
 				door.setValue(TOPYATTNAME, Integer.parseInt(splitobject[2]));
 				door.setValue(BOTTOMXATTNAME, Integer.parseInt(splitobject[3]));
@@ -1126,7 +1134,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 				doors++;
 			}
 			else if (splitobject[0].equals("block")){
-				ObjectInstance block = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(BLOCKCLASS), BLOCKCLASS + blocks);
+				ObjectInstance block = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(BLOCKCLASS), BLOCKCLASS + blocks);
 				block.setValue(COLORATTNAME, colors.get(Integer.parseInt(splitobject[1])));
 				block.setValue(SHAPEATTNAME, shapes.get(Integer.parseInt(splitobject[2])));
 				block.setValue(XATTNAME, Integer.parseInt(splitobject[3]));
@@ -1135,7 +1143,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 				blocks++;
 			}
 			else if (splitobject[0].equals("agent")){
-				ObjectInstance agent = new ObjectInstance(SOKOBANDOMAIN.getObjectClass(AGENTCLASS), AGENTCLASS + agents);
+				ObjectInstance agent = new MutableObjectInstance(SOKOBANDOMAIN.getObjectClass(AGENTCLASS), AGENTCLASS + agents);
 				agent.setValue(XATTNAME, Integer.parseInt(splitobject[1].trim()));
 				agent.setValue(YATTNAME, Integer.parseInt(splitobject[2].trim()));
 				st.addObject(agent);
@@ -1177,8 +1185,8 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		//perform actions from file
 		for (int i = 0; i < stringActions.size(); i++){
 			Action action = domain.getAction(stringActions.get(i));
-			actions.add(new GroundedAction(action, ""));
-			st = action.performAction(st, "");
+			actions.add(new SimpleGroundedAction(action));
+			st = action.performAction(st, new SimpleGroundedAction(action));
 		}
 		trajectory = new Trajectory(states, actions);
 		TrainingElement element = new TrainingElement(command, trajectory);
@@ -1187,24 +1195,24 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 	}
 
 	public static int getMaxX(State st){
-		List<ObjectInstance> rooms = st.getObjectsOfTrueClass(ROOMCLASS);
+		List<ObjectInstance> rooms = st.getObjectsOfClass(ROOMCLASS);
 		int x = 0;
 		for (int i = 0; i < rooms.size(); i++){
 			ObjectInstance room = rooms.get(i); 
-			if (room.getDiscValForAttribute(BOTTOMXATTNAME) > x){
-				x = room.getDiscValForAttribute(BOTTOMXATTNAME);
+			if (room.getIntValForAttribute(BOTTOMXATTNAME) > x){
+				x = room.getIntValForAttribute(BOTTOMXATTNAME);
 			}
 		}
 		return x+1;
 	}
 
 	public static int getMaxY(State st){
-		List<ObjectInstance> rooms = st.getObjectsOfTrueClass(ROOMCLASS);
+		List<ObjectInstance> rooms = st.getObjectsOfClass(ROOMCLASS);
 		int y = 0;
 		for (int i = 0; i < rooms.size(); i++){
 			ObjectInstance room = rooms.get(i); 
-			if (room.getDiscValForAttribute(TOPYATTNAME) > y){
-				y = room.getDiscValForAttribute(TOPYATTNAME);
+			if (room.getIntValForAttribute(TOPYATTNAME) > y){
+				y = room.getIntValForAttribute(TOPYATTNAME);
 			}
 		}
 		return y+1;
@@ -1241,7 +1249,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 				for(int i = 0; i < actions.size(); i++){
 					
 					Action act = actions.get(i);
-					State sPrime = act.performAction(ex, "");
+					State sPrime = act.performAction(ex, new SimpleGroundedAction(act));
 					int spid = SokoSAS.getStateId(sPrime);
 					
 					SokoSAS sas = new SokoSAS(id, i, spid);
@@ -1295,14 +1303,14 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		public static int getStateId(State s){
 			int col = getMaxX(s);
 			int rows = getMaxY(s);
-			List<ObjectInstance> blocks = s.getObjectsOfTrueClass(BLOCKCLASS);
-			ObjectInstance agent = s.getObjectsOfTrueClass(AGENTCLASS).get(0);
-			int stateID = agent.getDiscValForAttribute(XATTNAME) + agent.getDiscValForAttribute(YATTNAME) * col;
+			List<ObjectInstance> blocks = s.getObjectsOfClass(BLOCKCLASS);
+			ObjectInstance agent = s.getObjectsOfClass(AGENTCLASS).get(0);
+			int stateID = agent.getIntValForAttribute(XATTNAME) + agent.getIntValForAttribute(YATTNAME) * col;
 
 			for (int i = 0; i < blocks.size(); i++){
 				ObjectInstance block = blocks.get(i);
-				int x = block.getDiscValForAttribute(XATTNAME);
-				int y = block.getDiscValForAttribute(YATTNAME);
+				int x = block.getIntValForAttribute(XATTNAME);
+				int y = block.getIntValForAttribute(YATTNAME);
 
 				stateID += x * ((int)Math.pow(rows,i+1)) * ((int)Math.pow(col, i+1));
 				stateID += y * ((int)Math.pow(rows,i+1)) * ((int)Math.pow(col, i+2));
@@ -1313,8 +1321,8 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 		}
 
 		public static State getStateFromId(int id, State referenceState){
-			State st = new State(referenceState);
-			List<ObjectInstance> blocks = referenceState.getObjectsOfTrueClass(BLOCKCLASS);
+			State st = referenceState.copy();
+			List<ObjectInstance> blocks = referenceState.getObjectsOfClass(BLOCKCLASS);
 			int cols = getMaxX(referenceState);
 			int rows = getMaxY(referenceState);
 			int x, y;
@@ -1328,7 +1336,7 @@ public class SokobanDomain implements DomainGenerator, StateParser {
 					agent.setValue(YATTNAME, y);
 				}
 				else{
-					ObjectInstance block = st.getObjectsOfTrueClass(BLOCKCLASS).get(i-1);
+					ObjectInstance block = st.getObjectsOfClass(BLOCKCLASS).get(i-1);
 					block.setValue(XATTNAME, x);
 					block.setValue(YATTNAME, y);
 				}

@@ -1,5 +1,8 @@
 package commands.tests;
 
+import burlap.oomdp.legacy.StateParser;
+import burlap.oomdp.statehashing.HashableStateFactory;
+import burlap.oomdp.statehashing.SimpleHashableStateFactory;
 import generativemodel.GMQueryResult;
 import generativemodel.GenerativeModel;
 
@@ -13,10 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import burlap.behavior.statehashing.DiscreteStateHashFactory;
-import burlap.behavior.statehashing.NameDependentStateHashFactory;
-import burlap.behavior.statehashing.StateHashFactory;
-import burlap.oomdp.auxiliary.StateParser;
+
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.GroundedProp;
 
@@ -83,7 +83,7 @@ public class Model3ControllerTest {
 	public static Model3Controller constructController(){
 		Sokoban2Domain dg = new Sokoban2Domain();
 		Domain domain = dg.generateDomain();
-		StateHashFactory hashingFactory = new NameDependentStateHashFactory();
+		HashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		List<GPConjunction> liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 		
 		GPConjunction atr = new GPConjunction();
@@ -359,7 +359,7 @@ public class Model3ControllerTest {
 		
 		Sokoban2Domain dg = new Sokoban2Domain();
 		Domain domain = dg.generateDomain();
-		StateHashFactory hashingFactory = new NameDependentStateHashFactory();
+		HashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		StateParser sp = new SokobanOldToNewParser(domain);
 		List<GPConjunction> liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 		
@@ -446,7 +446,7 @@ public class Model3ControllerTest {
 		
 		Sokoban2Domain dg = new Sokoban2Domain();
 		Domain domain = dg.generateDomain();
-		StateHashFactory hashingFactory = new NameDependentStateHashFactory();
+		SimpleHashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		StateParser sp = new SokobanOldToNewParser(domain);
 		List<GPConjunction> liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 		
@@ -535,7 +535,7 @@ public class Model3ControllerTest {
 		
 		Sokoban2Domain dg = new Sokoban2Domain();
 		Domain domain = dg.generateDomain();
-		StateHashFactory hashingFactory = new NameDependentStateHashFactory();
+		SimpleHashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		StateParser sp = new SokobanOldToNewParser(domain);
 		List<GPConjunction> liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 		
@@ -609,7 +609,7 @@ public class Model3ControllerTest {
 		
 		Sokoban2Domain dg = new Sokoban2Domain();
 		Domain domain = dg.generateDomain();
-		StateHashFactory hashingFactory = new NameDependentStateHashFactory();
+		SimpleHashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		StateParser sp = new SokobanOldToNewParser(domain);
 		List<GPConjunction> liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 		
@@ -648,7 +648,7 @@ public class Model3ControllerTest {
 		
 		Sokoban2Domain dg = new Sokoban2Domain();
 		Domain domain = dg.generateDomain();
-		StateHashFactory hashingFactory = new DiscreteStateHashFactory();
+		SimpleHashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		StateParser sp = new SokobanOldToNewParser(domain);
 		List<GPConjunction> liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 		
@@ -707,7 +707,7 @@ public class Model3ControllerTest {
 		
 		Sokoban2Domain dg = new Sokoban2Domain();
 		Domain domain = dg.generateDomain();
-		StateHashFactory hashingFactory = new NameDependentStateHashFactory();
+		SimpleHashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		StateParser sp = new SokobanOldToNewParser(domain);
 		List<GPConjunction> liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 		
@@ -744,7 +744,7 @@ public class Model3ControllerTest {
 		
 		Sokoban2Domain dg = new Sokoban2Domain();
 		Domain domain = dg.generateDomain();
-		StateHashFactory hashingFactory = new NameDependentStateHashFactory();
+		SimpleHashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		StateParser sp = new SokobanOldToNewParser(domain);
 		List<GPConjunction> liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 		
@@ -817,7 +817,7 @@ public class Model3ControllerTest {
 		
 		Sokoban2Domain dg = new Sokoban2Domain();
 		Domain domain = dg.generateDomain();
-		StateHashFactory hashingFactory = new NameDependentStateHashFactory();
+		SimpleHashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		StateParser sp = new SokobanOldToNewParser(domain);
 		List<GPConjunction> liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 		
@@ -887,7 +887,7 @@ public class Model3ControllerTest {
 		
 		Sokoban2Domain dg = new Sokoban2Domain();
 		Domain domain = dg.generateDomain();
-		StateHashFactory hashingFactory = new NameDependentStateHashFactory();
+		SimpleHashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		StateParser sp = new SokobanOldToNewParser(domain);
 		List<GPConjunction> liftedTaskDescriptions = new ArrayList<GPConjunction>(2);
 		

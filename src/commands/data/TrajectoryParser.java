@@ -3,11 +3,14 @@ package commands.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import burlap.oomdp.auxiliary.StateParser;
+
 import burlap.oomdp.core.Domain;
-import burlap.oomdp.core.State;
+
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.legacy.StateParser;
 import burlap.oomdp.singleagent.Action;
 import burlap.oomdp.singleagent.GroundedAction;
+import burlap.oomdp.singleagent.common.SimpleGroundedAction;
 
 public class TrajectoryParser {
 
@@ -39,7 +42,7 @@ public class TrajectoryParser {
 				params[j-1] = aparams[j].trim();
 			}
 			Action action = d.getAction(aname);
-			GroundedAction ga = new GroundedAction(action, params);
+			GroundedAction ga = new SimpleGroundedAction(action);
 			actions.add(ga);
 		}
 		
@@ -64,10 +67,11 @@ public class TrajectoryParser {
 				buf.append(",");
 			}
 			GroundedAction ga = t.getAction(i);
-			buf.append(ga.action.getName());
-			for(int j = 0; j < ga.params.length; j++){
-				buf.append(" ").append(ga.params[j]);
-			}
+			buf.append(ga.toString());
+//			buf.append(ga.action.getName());
+//			for(int j = 0; j < ga.params.length; j++){
+//				buf.append(" ").append(ga.params[j]);
+//			}
 		}
 		
 		buf.append("\n");

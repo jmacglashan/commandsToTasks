@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import burlap.oomdp.auxiliary.StateParser;
+
 import burlap.oomdp.core.Domain;
+import burlap.oomdp.legacy.StateParser;
 
 public class TrainingElementParser {
 

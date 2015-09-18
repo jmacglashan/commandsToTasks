@@ -1,6 +1,7 @@
 package experiments.sokoban;
 
-import burlap.oomdp.core.State;
+
+import burlap.oomdp.core.states.State;
 import commands.data.TrainingElement;
 import commands.model3.TaskModule;
 import commands.model3.mt.Tokenizer;
@@ -22,7 +23,7 @@ public class SokoMTExperiment {
 		/////////////////////////////////////////////////////////////
 		// FOR AMT FULL DATASET TRAINING TEST USE THE BELOW
 		////////////////////////////////////////////////////////////
-		//trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET);
+		trainingTest(true, SokobanControllerConstructor.AMTFULLDATASET);
 		//trainingTest(false, SokobanControllerConstructor.EXPERTDATASET);
 
 		//savedModelTest(true, SokobanControllerConstructor.AMTFULLDATASET, "langModelParams.yaml");
@@ -30,7 +31,7 @@ public class SokoMTExperiment {
 
 		//savedModelTaskProbs(true, SokobanControllerConstructor.AMTFULLDATASET, "amtLangModelParams.yaml");
 
-		testWeaklySupervisedDataWrite(true, SokobanControllerConstructor.AMTFULLDATASET);
+		//testWeaklySupervisedDataWrite(true, SokobanControllerConstructor.AMTFULLDATASET);
 
 
 		/////////////////////////////////////////////////////////////
@@ -90,7 +91,7 @@ public class SokoMTExperiment {
 			evaluatePerformanceOnDataset(controller, dataset, constructor.getExpertDatasetRFLabels());
 		}
 
-		controller.dumpLanguageMode("expertLangModelParams.yaml");
+		//controller.dumpLanguageMode("expertLangModelParams.yaml");
 	}
 
 	public static void testWeaklySupervisedDataWrite(boolean isAMT, String pathToDataset){

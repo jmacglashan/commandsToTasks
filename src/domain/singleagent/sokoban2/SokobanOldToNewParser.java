@@ -1,9 +1,12 @@
 package domain.singleagent.sokoban2;
 
+import burlap.oomdp.core.objects.MutableObjectInstance;
+import burlap.oomdp.core.objects.ObjectInstance;
+import burlap.oomdp.core.states.MutableState;
+import burlap.oomdp.core.states.State;
 import domain.singleagent.sokoban.SokobanDomain;
 import burlap.oomdp.core.Domain;
-import burlap.oomdp.core.ObjectInstance;
-import burlap.oomdp.core.State;
+
 
 public class SokobanOldToNewParser extends Sokoban2Parser {
 
@@ -14,7 +17,7 @@ public class SokobanOldToNewParser extends Sokoban2Parser {
 	@Override
 	public State stringToState(String str) {
 		
-		State s = new State();
+		State s = new MutableState();
 		int rooms = 0;
 		int doors = 0;
 		int blocks = 0;
@@ -23,7 +26,7 @@ public class SokobanOldToNewParser extends Sokoban2Parser {
 		for (int i = 0; i < objects.length; i++){
 			String[] splitobject = objects[i].split(",");
 			if (splitobject[0].equals("room")){
-				ObjectInstance room = new ObjectInstance(this.domain.getObjectClass(Sokoban2Domain.CLASSROOM), Sokoban2Domain.CLASSROOM + rooms);
+				ObjectInstance room = new MutableObjectInstance(this.domain.getObjectClass(Sokoban2Domain.CLASSROOM), Sokoban2Domain.CLASSROOM + rooms);
 				String colName = SokobanDomain.colors.get(Integer.parseInt(splitobject[1]));
 				room.setValue(Sokoban2Domain.ATTCOLOR, colName);
 				room.setValue(Sokoban2Domain.ATTLEFT, Integer.parseInt(splitobject[2]));
@@ -34,7 +37,7 @@ public class SokobanOldToNewParser extends Sokoban2Parser {
 				rooms++;
 			}
 			else if (splitobject[0].equals("door")){
-				ObjectInstance door = new ObjectInstance(this.domain.getObjectClass(Sokoban2Domain.CLASSDOOR), Sokoban2Domain.CLASSDOOR + doors);
+				ObjectInstance door = new MutableObjectInstance(this.domain.getObjectClass(Sokoban2Domain.CLASSDOOR), Sokoban2Domain.CLASSDOOR + doors);
 				door.setValue(Sokoban2Domain.ATTLEFT, Integer.parseInt(splitobject[1]));
 				door.setValue(Sokoban2Domain.ATTTOP, Integer.parseInt(splitobject[2]));
 				door.setValue(Sokoban2Domain.ATTRIGHT, Integer.parseInt(splitobject[3]));
@@ -43,7 +46,7 @@ public class SokobanOldToNewParser extends Sokoban2Parser {
 				doors++;
 			}
 			else if (splitobject[0].equals("block")){
-				ObjectInstance block = new ObjectInstance(this.domain.getObjectClass(Sokoban2Domain.CLASSBLOCK), Sokoban2Domain.CLASSBLOCK + blocks);
+				ObjectInstance block = new MutableObjectInstance(this.domain.getObjectClass(Sokoban2Domain.CLASSBLOCK), Sokoban2Domain.CLASSBLOCK + blocks);
 				
 				String colName = SokobanDomain.colors.get(Integer.parseInt(splitobject[1]));
 				//String shapeName = SokobanDomain.shapes.get(Integer.parseInt(splitobject[2])); shapes are now unique between versions so use indexing instead
@@ -55,7 +58,7 @@ public class SokobanOldToNewParser extends Sokoban2Parser {
 				blocks++;
 			}
 			else if (splitobject[0].equals("agent")){
-				ObjectInstance agent = new ObjectInstance(this.domain.getObjectClass(Sokoban2Domain.CLASSAGENT), Sokoban2Domain.CLASSAGENT + agents);
+				ObjectInstance agent = new MutableObjectInstance(this.domain.getObjectClass(Sokoban2Domain.CLASSAGENT), Sokoban2Domain.CLASSAGENT + agents);
 				agent.setValue(Sokoban2Domain.ATTX, Integer.parseInt(splitobject[1].trim()));
 				agent.setValue(Sokoban2Domain.ATTY, Integer.parseInt(splitobject[2].trim()));
 				

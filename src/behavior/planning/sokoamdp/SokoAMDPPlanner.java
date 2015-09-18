@@ -1,20 +1,28 @@
 package behavior.planning.sokoamdp;
 
+import burlap.behavior.policy.Policy;
 import burlap.behavior.singleagent.EpisodeAnalysis;
-import burlap.behavior.singleagent.Policy;
-import burlap.behavior.singleagent.planning.StateConditionTest;
+
+import burlap.behavior.singleagent.planning.deterministic.DDPlannerPolicy;
 import burlap.behavior.singleagent.planning.deterministic.DeterministicPlanner;
-import burlap.behavior.singleagent.planning.deterministic.GoalConditionTF;
+
 import burlap.behavior.singleagent.planning.deterministic.SDPlannerPolicy;
-import burlap.behavior.singleagent.planning.deterministic.TFGoalCondition;
+
 import burlap.behavior.singleagent.planning.deterministic.uninformed.bfs.BFS;
-import burlap.behavior.statehashing.NameDependentStateHashFactory;
-import burlap.behavior.statehashing.StateHashFactory;
-import burlap.behavior.statehashing.StateHashTuple;
+
 import burlap.debugtools.DPrint;
+import burlap.oomdp.auxiliary.common.GoalConditionTF;
+import burlap.oomdp.auxiliary.stateconditiontest.StateConditionTest;
+import burlap.oomdp.auxiliary.stateconditiontest.TFGoalCondition;
 import burlap.oomdp.core.*;
+import burlap.oomdp.core.objects.ObjectInstance;
+import burlap.oomdp.core.states.State;
 import burlap.oomdp.singleagent.GroundedAction;
+import burlap.oomdp.singleagent.ObjectParameterizedAction;
 import burlap.oomdp.singleagent.common.UniformCostRF;
+import burlap.oomdp.statehashing.HashableState;
+import burlap.oomdp.statehashing.HashableStateFactory;
+import burlap.oomdp.statehashing.SimpleHashableStateFactory;
 import commands.model3.TrajectoryModule;
 import domain.singleagent.sokoban2.Sokoban2Domain;
 
@@ -31,7 +39,7 @@ public class SokoAMDPPlanner extends DeterministicPlanner {
 	protected String blockName;
 	protected String agentName;
 
-	public SokoAMDPPlanner(Domain domain, Domain adomain, TerminalFunction tf, StateHashFactory hashingFactory){
+	public SokoAMDPPlanner(Domain domain, Domain adomain, TerminalFunction tf, HashableStateFactory hashingFactory){
 
 		if(!(tf instanceof TrajectoryModule.ConjunctiveGroundedPropTF)){
 			throw new RuntimeException("Error; terminal function is not correct type.");
@@ -46,7 +54,7 @@ public class SokoAMDPPlanner extends DeterministicPlanner {
 	}
 
 	@Override
-	public void planFromState(State initialState) {
+	public Policy planFromState(State initialState) {
 
 		TrajectoryModule.ConjunctiveGroundedPropTF ctf = (TrajectoryModule.ConjunctiveGroundedPropTF)tf;
 		GroundedProp gp = ctf.gps.get(0);
@@ -57,7 +65,7 @@ public class SokoAMDPPlanner extends DeterministicPlanner {
 
 			State as = SokoAMDP.projectToAMDPState(initialState, this.adomain);
 			StateConditionTest asg = new SokoAMDP.InRegionGC(gp.params[1]);
-			BFS bfs = new BFS(this.adomain, asg, new NameDependentStateHashFactory());
+			BFS bfs = new BFS(this.adomain, asg, new SimpleHashableStateFactory(false));
 			DPrint.toggleCode(bfs.getDebugCode(), false);
 			bfs.planFromState(as);
 			SDPlannerPolicy policy = new SDPlannerPolicy(bfs);
@@ -84,7 +92,7 @@ public class SokoAMDPPlanner extends DeterministicPlanner {
 			//next set up planner for getting to block room and decompose
 			State as = SokoAMDP.projectToAMDPState(curState, this.adomain);
 			StateConditionTest asg = new SokoAMDP.InRegionGC(initialBlockRegionName);
-			BFS ibfs = new BFS(this.adomain, asg, new NameDependentStateHashFactory());
+			BFS ibfs = new BFS(this.adomain, asg, new SimpleHashableStateFactory(false));
 			DPrint.toggleCode(ibfs.getDebugCode(), false);
 			ibfs.planFromState(as);
 			SDPlannerPolicy ipolicy = new SDPlannerPolicy(ibfs);
@@ -94,7 +102,7 @@ public class SokoAMDPPlanner extends DeterministicPlanner {
 			//now do block movement to goal region planning
 			as = SokoAMDP.projectToAMDPState(curState, this.adomain);
 			asg = new SokoAMDP.InRegionGC(gp.params[1]);
-			BFS fbfs = new BFS(this.adomain, asg, new NameDependentStateHashFactory());
+			BFS fbfs = new BFS(this.adomain, asg, new SimpleHashableStateFactory(false));
 			fbfs.planFromState(as);
 			SDPlannerPolicy fpolicy = new SDPlannerPolicy(fbfs);
 			EpisodeAnalysis fea = fpolicy.evaluateBehavior(as, new UniformCostRF(), new GoalConditionTF(asg));
@@ -104,6 +112,8 @@ public class SokoAMDPPlanner extends DeterministicPlanner {
 
 		}
 
+		return new DDPlannerPolicy(this);
+
 
 	}
 
@@ -111,7 +121,7 @@ public class SokoAMDPPlanner extends DeterministicPlanner {
 
 		for(int t = 0; t < ea.numTimeSteps()-1; t++){
 
-			GroundedAction aAction = ea.getAction(t);
+			ObjectParameterizedAction.ObjectParameterizedGroundedAction aAction = (ObjectParameterizedAction.ObjectParameterizedGroundedAction)ea.getAction(t);
 			TrajectoryModule.ConjunctiveGroundedPropTF subgoalTF;
 			if(aAction.actionName().equals(SokoAMDP.ACTIONTODOOR)){
 				List<GroundedProp> subgoalGPs = new ArrayList<GroundedProp>(1);
@@ -148,7 +158,7 @@ public class SokoAMDPPlanner extends DeterministicPlanner {
 			EpisodeAnalysis lowDecomp = p.evaluateBehavior(curState, this.rf, subgoalTF);
 			for(int t2 = 0; t2 < lowDecomp.numTimeSteps()-1; t2++){
 				State ls = lowDecomp.getState(t2);
-				StateHashTuple lsh = this.hashingFactory.hashState(ls);
+				HashableState lsh = this.hashingFactory.hashState(ls);
 				this.internalPolicy.put(lsh, lowDecomp.getAction(t2));
 				this.mapToStateIndex.put(lsh,lsh);
 			}

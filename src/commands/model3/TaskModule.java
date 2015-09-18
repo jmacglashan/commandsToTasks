@@ -1,5 +1,8 @@
 package commands.model3;
 
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.statehashing.HashableState;
+import burlap.oomdp.statehashing.HashableStateFactory;
 import generativemodel.GMModule;
 import generativemodel.GMQuery;
 import generativemodel.GMQueryResult;
@@ -16,12 +19,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import burlap.behavior.statehashing.StateHashFactory;
-import burlap.behavior.statehashing.StateHashTuple;
+
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.GroundedProp;
 import burlap.oomdp.core.PropositionalFunction;
-import burlap.oomdp.core.State;
+
 import burlap.oomdp.singleagent.GroundedAction;
 import burlap.oomdp.singleagent.RewardFunction;
 
@@ -108,16 +110,16 @@ public class TaskModule extends GMModule {
 	public static class StateRVValue extends RVariableValue{
 		
 		public State				s;
-		public StateHashTuple		sh;
+		public HashableState sh;
 
-		public StateRVValue(State s, StateHashFactory factory, RVariable owner){
+		public StateRVValue(State s, HashableStateFactory factory, RVariable owner){
 			this.s = s;
 			this.sh = factory.hashState(s);
 			
 			this.setOwner(owner);
 		}
 		
-		public StateRVValue(StateHashTuple sh, RVariable owner){
+		public StateRVValue(HashableState sh, RVariable owner){
 			this.s = sh.s;
 			this.sh = sh;
 			
@@ -427,7 +429,7 @@ public class TaskModule extends GMModule {
 				}
 				boolean possibleInState = true;
 				for(Entry<String, Integer> e : numOfEachObject.entrySet()){
-					if(e.getValue() > stateVal.s.getObjectsOfTrueClass(e.getKey()).size()){
+					if(e.getValue() > stateVal.s.getObjectsOfClass(e.getKey()).size()){
 						possibleInState = false;
 						break;
 					}
@@ -594,7 +596,7 @@ public class TaskModule extends GMModule {
 			List<GroundedProp> allTruePFs = new ArrayList<GroundedProp>();
 			List<PropositionalFunction> pfs = domain.getPropFunctions();
 			for(PropositionalFunction pf : pfs){
-				List <GroundedProp> gps = stateVal.s.getAllGroundedPropsFor(pf);
+				List<GroundedProp> gps = pf.getAllGroundedPropsForState(stateVal.s);
 				for(GroundedProp gp : gps){
 					if(gp.isTrue(stateVal.s)){
 						allTruePFs.add(gp);

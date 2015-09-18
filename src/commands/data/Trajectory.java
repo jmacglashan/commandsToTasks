@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import burlap.behavior.singleagent.EpisodeAnalysis;
-import burlap.oomdp.core.State;
+
+import burlap.oomdp.core.states.State;
 import burlap.oomdp.singleagent.GroundedAction;
 
 public class Trajectory {

@@ -1,5 +1,8 @@
 package commands.model3;
 
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.legacy.StateParser;
+import burlap.oomdp.statehashing.HashableStateFactory;
 import generativemodel.GMQuery;
 import generativemodel.GMQueryResult;
 import generativemodel.GenerativeModel;
@@ -20,12 +23,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import behavior.irl.DGDIRLFactory;
-import burlap.behavior.statehashing.StateHashFactory;
-import burlap.oomdp.auxiliary.StateParser;
+
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.GroundedProp;
 import burlap.oomdp.core.PropositionalFunction;
-import burlap.oomdp.core.State;
+
 
 import commands.data.TrainingElement;
 import commands.data.TrainingElementParser;
@@ -59,14 +61,14 @@ public class Model3Controller {
 	protected SentenceReasoner			sentenceReasoner;
 	
 	protected Domain					domain;
-	protected StateHashFactory			hashingFactory;
+	protected HashableStateFactory 		hashingFactory;
 	
 	protected RVariable					naturalCommandVariable;
 	
 	protected List<TrainingElement>		trajectoryDataset;
 	
 	
-	public Model3Controller(Domain domain, List<GPConjunction> taskGoals, StateHashFactory hashingFactory, boolean addTermainateActionForIRL){
+	public Model3Controller(Domain domain, List<GPConjunction> taskGoals, HashableStateFactory hashingFactory, boolean addTermainateActionForIRL){
 		
 		this.domain = domain;
 		this.hashingFactory = hashingFactory;
@@ -107,7 +109,7 @@ public class Model3Controller {
 		return domain;
 	}
 	
-	public StateHashFactory getHashingFactory(){
+	public HashableStateFactory getHashingFactory(){
 		return this.hashingFactory;
 	}
 	

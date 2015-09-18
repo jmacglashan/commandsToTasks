@@ -1,8 +1,9 @@
 package commands.auxiliarytools.sokoban.turkexamples;
 
 import burlap.oomdp.auxiliary.StateGenerator;
-import burlap.oomdp.core.ObjectInstance;
-import burlap.oomdp.core.State;
+
+import burlap.oomdp.core.objects.ObjectInstance;
+import burlap.oomdp.core.states.State;
 import domain.singleagent.sokoban.SokobanDomain;
 
 public class Turk4 implements StateGenerator {

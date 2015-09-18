@@ -1,15 +1,17 @@
 package behavior.planning;
 
-import burlap.behavior.singleagent.Policy;
-import burlap.behavior.statehashing.StateHashFactory;
+
+import burlap.behavior.policy.Policy;
 import burlap.oomdp.core.Domain;
-import burlap.oomdp.core.State;
+
 import burlap.oomdp.core.TerminalFunction;
+import burlap.oomdp.core.states.State;
 import burlap.oomdp.singleagent.RewardFunction;
+import burlap.oomdp.statehashing.HashableStateFactory;
 
 /**
  * @author James MacGlashan.
  */
 public interface PolicyGenerator {
-	public Policy getPolicy(Domain domain, State initialState, RewardFunction rf, TerminalFunction tf, StateHashFactory hashingFactory);
+	public Policy getPolicy(Domain domain, State initialState, RewardFunction rf, TerminalFunction tf, HashableStateFactory hashingFactory);
 }

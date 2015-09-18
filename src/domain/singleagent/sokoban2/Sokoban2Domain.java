@@ -4,8 +4,15 @@ import java.util.List;
 
 import burlap.oomdp.auxiliary.DomainGenerator;
 import burlap.oomdp.core.*;
+import burlap.oomdp.core.objects.MutableObjectInstance;
+import burlap.oomdp.core.objects.ObjectInstance;
+import burlap.oomdp.core.states.MutableState;
+import burlap.oomdp.core.states.State;
 import burlap.oomdp.singleagent.Action;
+import burlap.oomdp.singleagent.FullActionModel;
+import burlap.oomdp.singleagent.GroundedAction;
 import burlap.oomdp.singleagent.SADomain;
+import burlap.oomdp.singleagent.common.SimpleAction;
 import burlap.oomdp.singleagent.explorer.VisualExplorer;
 import burlap.oomdp.visualizer.Visualizer;
 
@@ -208,7 +215,7 @@ public class Sokoban2Domain implements DomainGenerator {
 	
 	public static State getCleanState(Domain domain, int nRooms, int nDoors, int nBlocks){
 		
-		State s = new State();
+		State s = new MutableState();
 		
 		//create  rooms
 		createNInstances(domain, s, CLASSROOM, nRooms);
@@ -220,7 +227,7 @@ public class Sokoban2Domain implements DomainGenerator {
 		createNInstances(domain, s, CLASSBLOCK, nBlocks);
 		
 		//create agent
-		ObjectInstance o = new ObjectInstance(domain.getObjectClass(CLASSAGENT), CLASSAGENT+0);
+		ObjectInstance o = new MutableObjectInstance(domain.getObjectClass(CLASSAGENT), CLASSAGENT+0);
 		s.addObject(o);
 		
 		Attribute dirAtt = o.getObjectClass().getAttribute(ATTDIR);
@@ -266,13 +273,13 @@ public class Sokoban2Domain implements DomainGenerator {
 	}
 	
 	public static void setBlockPos(State s, int i, int x, int y){
-		ObjectInstance o = s.getObjectsOfTrueClass(CLASSBLOCK).get(i);
+		ObjectInstance o = s.getObjectsOfClass(CLASSBLOCK).get(i);
 		o.setValue(ATTX, x);
 		o.setValue(ATTY, y);
 	}
 	
 	public static void setBlock(State s, int i, int x, int y, String shape, String color){
-		ObjectInstance o = s.getObjectsOfTrueClass(CLASSBLOCK).get(i);
+		ObjectInstance o = s.getObjectsOfClass(CLASSBLOCK).get(i);
 		setBlock(o, x, y, shape, color);
 	}
 	
@@ -284,13 +291,13 @@ public class Sokoban2Domain implements DomainGenerator {
 	}
 	
 	public static void setRoom(State s, int i, int top, int left, int bottom, int right, String color){
-		ObjectInstance o = s.getObjectsOfTrueClass(CLASSROOM).get(i);
+		ObjectInstance o = s.getObjectsOfClass(CLASSROOM).get(i);
 		setRegion(o, top, left, bottom, right);
 		o.setValue(ATTCOLOR, color);
 	}
 	
 	public static void setDoor(State s, int i, int top, int left, int bottom, int right){
-		ObjectInstance o = s.getObjectsOfTrueClass(CLASSDOOR).get(i);
+		ObjectInstance o = s.getObjectsOfClass(CLASSDOOR).get(i);
 		setRegion(o, top, left, bottom, right);
 	}
 	
@@ -308,7 +315,7 @@ public class Sokoban2Domain implements DomainGenerator {
 	
 	protected static void createNInstances(Domain domain, State s, String className, int n){
 		for(int i = 0; i < n; i++){
-			ObjectInstance o = new ObjectInstance(domain.getObjectClass(className), className+i);
+			ObjectInstance o = new MutableObjectInstance(domain.getObjectClass(className), className+i);
 			s.addObject(o);
 		}
 	}
@@ -317,9 +324,9 @@ public class Sokoban2Domain implements DomainGenerator {
 	public static int maxRoomXExtent(State s){
 		
 		int max = 0;
-		List <ObjectInstance> rooms = s.getObjectsOfTrueClass(CLASSROOM);
+		List <ObjectInstance> rooms = s.getObjectsOfClass(CLASSROOM);
 		for(ObjectInstance r : rooms){
-			int right = r.getDiscValForAttribute(ATTRIGHT);
+			int right = r.getIntValForAttribute(ATTRIGHT);
 			if(right > max){
 				max = right;
 			}
@@ -331,9 +338,9 @@ public class Sokoban2Domain implements DomainGenerator {
 	public static int maxRoomYExtent(State s){
 		
 		int max = 0;
-		List <ObjectInstance> rooms = s.getObjectsOfTrueClass(CLASSROOM);
+		List <ObjectInstance> rooms = s.getObjectsOfClass(CLASSROOM);
 		for(ObjectInstance r : rooms){
-			int top = r.getDiscValForAttribute(ATTTOP);
+			int top = r.getIntValForAttribute(ATTTOP);
 			if(top > max){
 				max = top;
 			}
@@ -350,17 +357,17 @@ public class Sokoban2Domain implements DomainGenerator {
 	}
 	
 	public static ObjectInstance roomContainingPoint(State s, int x, int y){
-		List<ObjectInstance> rooms = s.getObjectsOfTrueClass(CLASSROOM);
+		List<ObjectInstance> rooms = s.getObjectsOfClass(CLASSROOM);
 		return regionContainingPoint(rooms, x, y, false);
 	}
 	
 	public static ObjectInstance roomContainingPointIncludingBorder(State s, int x, int y){
-		List<ObjectInstance> rooms = s.getObjectsOfTrueClass(CLASSROOM);
+		List<ObjectInstance> rooms = s.getObjectsOfClass(CLASSROOM);
 		return regionContainingPoint(rooms, x, y, true);
 	}
 	
 	public static ObjectInstance doorContainingPoint(State s, int x, int y){
-		List<ObjectInstance> doors = s.getObjectsOfTrueClass(CLASSDOOR);
+		List<ObjectInstance> doors = s.getObjectsOfClass(CLASSDOOR);
 		return regionContainingPoint(doors, x, y, true);
 	}
 	
@@ -376,10 +383,10 @@ public class Sokoban2Domain implements DomainGenerator {
 	}
 	
 	public static boolean regionContainsPoint(ObjectInstance o, int x, int y, boolean countBoundary){
-		int top = o.getDiscValForAttribute(ATTTOP);
-		int left = o.getDiscValForAttribute(ATTLEFT);
-		int bottom = o.getDiscValForAttribute(ATTBOTTOM);
-		int right = o.getDiscValForAttribute(ATTRIGHT);
+		int top = o.getIntValForAttribute(ATTTOP);
+		int left = o.getIntValForAttribute(ATTLEFT);
+		int bottom = o.getIntValForAttribute(ATTBOTTOM);
+		int right = o.getIntValForAttribute(ATTRIGHT);
 		
 		if(countBoundary){
 			if(y >= bottom && y <= top && x >= left && x <= right){
@@ -397,10 +404,10 @@ public class Sokoban2Domain implements DomainGenerator {
 	
 	public static ObjectInstance blockAtPoint(State s, int x, int y){
 		
-		List<ObjectInstance> blocks = s.getObjectsOfTrueClass(CLASSBLOCK);
+		List<ObjectInstance> blocks = s.getObjectsOfClass(CLASSBLOCK);
 		for(ObjectInstance b : blocks){
-			int bx = b.getDiscValForAttribute(ATTX);
-			int by = b.getDiscValForAttribute(ATTY);
+			int bx = b.getIntValForAttribute(ATTX);
+			int by = b.getIntValForAttribute(ATTY);
 			
 			if(bx == x && by == y){
 				return b;
@@ -414,10 +421,10 @@ public class Sokoban2Domain implements DomainGenerator {
 	
 	public static boolean wallAt(State s, ObjectInstance r, int x, int y){
 		
-		int top = r.getDiscValForAttribute(ATTTOP);
-		int left = r.getDiscValForAttribute(ATTLEFT);
-		int bottom = r.getDiscValForAttribute(ATTBOTTOM);
-		int right = r.getDiscValForAttribute(ATTRIGHT);
+		int top = r.getIntValForAttribute(ATTTOP);
+		int left = r.getIntValForAttribute(ATTLEFT);
+		int bottom = r.getIntValForAttribute(ATTBOTTOM);
+		int right = r.getIntValForAttribute(ATTRIGHT);
 		
 		//agent along wall of room check
 		if(((x == left || x == right) && y >= bottom && y <= top) || ((y == bottom || y == top) && x >= left && x <= right)){
@@ -433,36 +440,36 @@ public class Sokoban2Domain implements DomainGenerator {
 		return false;
 	}
 	
-	public class MovementAction extends Action{
+	public class MovementAction extends SimpleAction implements FullActionModel{
 
 		protected int xdelta;
 		protected int ydelta;
 		
 		public MovementAction(String name, Domain domain, int xdelta, int ydelta){
-			super(name, domain, "");
+			super(name, domain);
 			this.xdelta = xdelta;
 			this.ydelta = ydelta;
 		}
 		
 		@Override
-		protected State performActionHelper(State s, String[] params) {
+		protected State performActionHelper(State s, GroundedAction ga) {
 			
 			ObjectInstance agent = s.getFirstObjectOfClass(CLASSAGENT);
-			int ax = agent.getDiscValForAttribute(ATTX);
-			int ay = agent.getDiscValForAttribute(ATTY);
+			int ax = agent.getIntValForAttribute(ATTX);
+			int ay = agent.getIntValForAttribute(ATTY);
 			
 			int nx = ax+xdelta;
 			int ny = ay+ydelta;
 			
 			//ObjectInstance roomContaining = roomContainingPoint(s, ax, ay);
-			ObjectInstance roomContaining = regionContainingPoint(s.getObjectsOfTrueClass(CLASSROOM), ax, ay, true);
+			ObjectInstance roomContaining = regionContainingPoint(s.getObjectsOfClass(CLASSROOM), ax, ay, true);
 			
 			
 			boolean permissibleMove = false;
 			ObjectInstance pushedBlock = blockAtPoint(s, nx, ny);
 			if(pushedBlock != null){
-				int bx = pushedBlock.getDiscValForAttribute(ATTX);
-				int by = pushedBlock.getDiscValForAttribute(ATTY);
+				int bx = pushedBlock.getIntValForAttribute(ATTX);
+				int by = pushedBlock.getIntValForAttribute(ATTY);
 				
 				int nbx = bx + xdelta;
 				int nby = by + ydelta;
@@ -507,38 +514,38 @@ public class Sokoban2Domain implements DomainGenerator {
 		}
 
 		@Override
-		public List<TransitionProbability> getTransitions(State s, String [] params){
-			return this.deterministicTransition(s, params);
+		public List<TransitionProbability> getTransitions(State s, GroundedAction ga){
+			return this.deterministicTransition(s, ga);
 		}
 		
 		
 	}
 	
-	public class PullAction extends Action{
+	public class PullAction extends SimpleAction implements FullActionModel{
 
 		public PullAction(Domain domain){
-			super(ACTIONPULL, domain, "");
+			super(ACTIONPULL, domain);
 		}
 		
 		@Override
-		public boolean applicableInState(State s, String [] params){
+		public boolean applicableInState(State s, GroundedAction ga){
 			ObjectInstance agent = s.getFirstObjectOfClass(CLASSAGENT);
-			int ax = agent.getDiscValForAttribute(ATTX);
-			int ay = agent.getDiscValForAttribute(ATTY);
+			int ax = agent.getIntValForAttribute(ATTX);
+			int ay = agent.getIntValForAttribute(ATTY);
 			
 			return this.blockToSwap(s, ax, ay) != null;
 		}
 		
 		@Override
-		protected State performActionHelper(State s, String[] params) {
+		protected State performActionHelper(State s, GroundedAction ga) {
 			
 			ObjectInstance agent = s.getFirstObjectOfClass(CLASSAGENT);
-			int ax = agent.getDiscValForAttribute(ATTX);
-			int ay = agent.getDiscValForAttribute(ATTY);
+			int ax = agent.getIntValForAttribute(ATTX);
+			int ay = agent.getIntValForAttribute(ATTY);
 			
 			ObjectInstance block = this.blockToSwap(s, ax, ay);
-			int bx = block.getDiscValForAttribute(ATTX);
-			int by = block.getDiscValForAttribute(ATTY);
+			int bx = block.getIntValForAttribute(ATTX);
+			int by = block.getIntValForAttribute(ATTY);
 			
 			agent.setValue(ATTX, bx);
 			agent.setValue(ATTY, by);
@@ -569,13 +576,13 @@ public class Sokoban2Domain implements DomainGenerator {
 
 
 		@Override
-		public List<TransitionProbability> getTransitions(State s, String [] params){
-			return this.deterministicTransition(s, params);
+		public List<TransitionProbability> getTransitions(State s, GroundedAction ga){
+			return this.deterministicTransition(s, ga);
 		}
 
 		protected ObjectInstance blockToSwap(State s, int ax, int ay){
 			//ObjectInstance roomContaining = roomContainingPoint(s, ax, ay);
-			ObjectInstance roomContaining = regionContainingPoint(s.getObjectsOfTrueClass(CLASSROOM), ax, ay, true);
+			ObjectInstance roomContaining = regionContainingPoint(s.getObjectsOfClass(CLASSROOM), ax, ay, true);
 
 			
 			ObjectInstance blockToSwap = null;
@@ -629,8 +636,8 @@ public class Sokoban2Domain implements DomainGenerator {
 		public boolean isTrue(State s, String[] params) {
 			
 			ObjectInstance o = s.getObject(params[0]);
-			int x = o.getDiscValForAttribute(ATTX);
-			int y = o.getDiscValForAttribute(ATTY);
+			int x = o.getIntValForAttribute(ATTX);
+			int y = o.getIntValForAttribute(ATTY);
 			
 			
 			ObjectInstance region = s.getObject(params[1]);
@@ -699,8 +706,8 @@ public class Sokoban2Domain implements DomainGenerator {
 		@Override
 		public boolean isTrue(State s, String[] params) {
 			ObjectInstance agent = s.getFirstObjectOfClass(CLASSAGENT);
-			int ax = agent.getDiscValForAttribute(ATTX);
-			int ay = agent.getDiscValForAttribute(ATTY);
+			int ax = agent.getIntValForAttribute(ATTX);
+			int ay = agent.getIntValForAttribute(ATTY);
 			ObjectInstance agentRoom = roomContainingPoint(s, ax, ay);
 			if(agentRoom == null){
 				return false;

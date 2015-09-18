@@ -2,14 +2,20 @@ package commands.online;
 
 import behavior.planning.PolicyGenerator;
 import behavior.planning.sokoamdp.SokoAMDPPlannerPolicyGen;
+import burlap.behavior.policy.DomainMappedPolicy;
+import burlap.behavior.policy.Policy;
 import burlap.behavior.singleagent.EpisodeAnalysis;
-import burlap.behavior.singleagent.Policy;
-import burlap.behavior.singleagent.learning.modellearning.DomainMappedPolicy;
-import burlap.behavior.statehashing.DiscreteStateHashFactory;
+
+
+import burlap.oomdp.auxiliary.common.NullTermination;
 import burlap.oomdp.core.*;
+import burlap.oomdp.core.states.State;
 import burlap.oomdp.singleagent.GroundedAction;
-import burlap.oomdp.singleagent.environment.DomainEnvironmentWrapper;
-import burlap.oomdp.singleagent.environment.Environment;
+
+import burlap.oomdp.singleagent.common.NullRewardFunction;
+import burlap.oomdp.singleagent.common.SimpleGroundedAction;
+import burlap.oomdp.singleagent.environment.*;
+import burlap.oomdp.statehashing.SimpleHashableStateFactory;
 import burlap.oomdp.visualizer.Visualizer;
 import commands.data.TrainingElement;
 import commands.data.Trajectory;
@@ -47,7 +53,6 @@ public class OnlineTraining extends JFrame{
 
 	protected Domain									planningDomain;
 	protected Environment								realEnvironment;
-	protected Domain									envDomain;
 	protected PolicyGenerator							policyGen;
 
 
@@ -82,8 +87,6 @@ public class OnlineTraining extends JFrame{
 		this.v = v;
 		this.policyGen = policyGen;
 
-		DomainEnvironmentWrapper wrap = new DomainEnvironmentWrapper(planningDomain, env);
-		this.envDomain = wrap.generateDomain();
 		this.controller = controller;
 
 
@@ -201,8 +204,8 @@ public class OnlineTraining extends JFrame{
 					GroundedAction ga = keyActionMap.get(strKey);
 
 					if(ga != null) {
-						State s = realEnvironment.executeAction(ga);
-						currentDemonstration.addActionStateTransition(ga, s);
+						EnvironmentOutcome eo = ga.executeIn(realEnvironment);
+						currentDemonstration.addActionStateTransition(ga, eo.op);
 					}
 				}
 			}
@@ -246,7 +249,7 @@ public class OnlineTraining extends JFrame{
 					@Override
 					public void run() {
 						while (runLiveStream) {
-							updateState(realEnvironment.getCurState());
+							updateState(realEnvironment.getCurrentObservation());
 							try {
 								Thread.sleep(100);
 							} catch (InterruptedException e) {
@@ -269,7 +272,7 @@ public class OnlineTraining extends JFrame{
 	}
 
 	public void demonstrate(){
-		this.currentDemonstration = new Trajectory(this.realEnvironment.getCurState());
+		this.currentDemonstration = new Trajectory(this.realEnvironment.getCurrentObservation());
 		this.isDemonstrating = true;
 		this.stopExecution.setEnabled(true);
 		this.demonstrateButton.setEnabled(false);
@@ -286,22 +289,28 @@ public class OnlineTraining extends JFrame{
 
 		System.out.println("Receiving command: " + command);
 
-		List<GMQueryResult> predictions = this.controller.getRFDistribution(this.realEnvironment.getCurState(), command);
+		List<GMQueryResult> predictions = this.controller.getRFDistribution(this.realEnvironment.getCurrentObservation(), command);
 		final TaskModule.RFConVariableValue val = (TaskModule.RFConVariableValue)GMQueryResult.maxProb(predictions).getSingleQueryVar();
 
 		final TrajectoryModule.ConjunctiveGroundedPropTF tf = new TrajectoryModule.ConjunctiveGroundedPropTF(val.rf);
 		System.out.println("Selecting RF: " + val.toString());
 
-		Policy plannerPolicy = this.policyGen.getPolicy(this.planningDomain, this.realEnvironment.getCurState(), val.rf, tf,
-				new DiscreteStateHashFactory());
-		final Policy envPolicy = new DomainMappedPolicy(this.envDomain, plannerPolicy);
+		final Policy plannerPolicy = this.policyGen.getPolicy(this.planningDomain, this.realEnvironment.getCurrentObservation(), val.rf, tf,
+				new SimpleHashableStateFactory());
+
+
+		if(this.realEnvironment instanceof TaskSettableEnvironment){
+			((TaskSettableEnvironment)this.realEnvironment).setRf(val.rf);
+			((TaskSettableEnvironment)this.realEnvironment).setTf(new TermWithHumanIntercept(tf));
+		}
 
 		this.policyThread = new Thread(new Runnable() {
 			@Override
 			public void run() {
 				stopExecution.setEnabled(true);
-				EpisodeAnalysis ea = envPolicy.evaluateBehavior(realEnvironment.getCurState(), val.rf,
-						new TermWithHumanIntercept(tf));
+//				EpisodeAnalysis ea = envPolicy.evaluateBehavior(realEnvironment.getCurState(), val.rf,
+//						new TermWithHumanIntercept(tf));
+				EpisodeAnalysis ea = plannerPolicy.evaluateBehavior(realEnvironment);
 				System.out.println("Executed episode size: " + ea.maxTimeStep());
 				executeCommandButton.setEnabled(true);
 				humanTerminateSignal = false;
@@ -392,37 +401,41 @@ public class OnlineTraining extends JFrame{
 
 
 
-	public static class SimulatedEnvironment extends Environment{
+	public static class DelayedEnvironment extends SimulatedEnvironment{
 
 		protected Domain domain;
 		protected long delay = 300;
 
-		public SimulatedEnvironment(Domain domain){
-			this.domain = domain;
+		public DelayedEnvironment(Domain domain){
+			super(domain, new NullRewardFunction(), new NullTermination());
 		}
 
 		@Override
-		public State executeAction(String aname, String[] params) {
-			burlap.oomdp.singleagent.Action action = this.domain.getAction(aname);
-			State nextState = action.performAction(this.curState, params);
+		public EnvironmentOutcome executeAction(GroundedAction ga) {
+			//TODO: does sleep need to come before state change is made?
+			EnvironmentOutcome eo =  super.executeAction(ga);
 			try {
 				Thread.sleep(this.delay);
 			} catch(InterruptedException e) {
 				e.printStackTrace();
 			}
-			this.curState = nextState;
-			return curState;
+			return eo;
 		}
 
-		@Override
-		public double getLastReward() {
-			return 0;
-		}
+//		@Override
+//		public State executeAction(String aname, String[] params) {
+//			burlap.oomdp.singleagent.Action action = this.domain.getAction(aname);
+//			State nextState = action.performAction(this.curState, params);
+//			try {
+//				Thread.sleep(this.delay);
+//			} catch(InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//			this.curState = nextState;
+//			return curState;
+//		}
 
-		@Override
-		public boolean curStateIsTerminal() {
-			return false;
-		}
+
 	}
 
 	public static interface SwapEnvironment{
@@ -489,8 +502,11 @@ public class OnlineTraining extends JFrame{
 
 		@Override
 		public void swapEnvironment(Environment env) {
-			env.setCurStateTo(this.cycleStates.get(this.curIndex));
-			this.curIndex = (this.curIndex+1) % this.cycleStates.size();
+
+			if(env instanceof StateSettableEnvironment){
+				((StateSettableEnvironment) env).setCurStateTo(this.cycleStates.get(this.curIndex));
+				this.curIndex = (this.curIndex+1) % this.cycleStates.size();
+			}
 		}
 	}
 
@@ -501,13 +517,13 @@ public class OnlineTraining extends JFrame{
 		sokoDomain.includeDirectionAttribute(true);
 		Domain domain = sokoDomain.generateDomain();
 
-		Environment env = new SimulatedEnvironment(domain);
+		Environment env = new DelayedEnvironment(domain);
 		Visualizer v = Sokoban2Visualizer.getVisualizer("resources/robotImages");
 
 		PolicyGenerator policyGen = new SokoAMDPPlannerPolicyGen();
 
 		final State initialState = Sokoban2Domain.getClassicState(domain);
-		env.setCurStateTo(initialState);
+		((DelayedEnvironment)env).setCurStateTo(initialState);
 		v.updateState(initialState);
 
 		SokobanControllerConstructor constructor = new SokobanControllerConstructor(false, false);
@@ -519,11 +535,11 @@ public class OnlineTraining extends JFrame{
 
 
 		OnlineTraining ot = new OnlineTraining(domain, env, v, policyGen, controller);
-		ot.addKeyAction("w", new GroundedAction(domain.getAction(Sokoban2Domain.ACTIONNORTH), ""));
-		ot.addKeyAction("s", new GroundedAction(domain.getAction(Sokoban2Domain.ACTIONSOUTH), ""));
-		ot.addKeyAction("a", new GroundedAction(domain.getAction(Sokoban2Domain.ACTIONWEST), ""));
-		ot.addKeyAction("d", new GroundedAction(domain.getAction(Sokoban2Domain.ACTIONEAST), ""));
-		ot.addKeyAction("e", new GroundedAction(domain.getAction(Sokoban2Domain.ACTIONPULL), ""));
+		ot.addKeyAction("w", new SimpleGroundedAction(domain.getAction(Sokoban2Domain.ACTIONNORTH)));
+		ot.addKeyAction("s", new SimpleGroundedAction(domain.getAction(Sokoban2Domain.ACTIONSOUTH)));
+		ot.addKeyAction("a", new SimpleGroundedAction(domain.getAction(Sokoban2Domain.ACTIONWEST)));
+		ot.addKeyAction("d", new SimpleGroundedAction(domain.getAction(Sokoban2Domain.ACTIONEAST)));
+		ot.addKeyAction("e", new SimpleGroundedAction(domain.getAction(Sokoban2Domain.ACTIONPULL)));
 
 //		ot.setSwapEnvironment(new SwapEnvironment() {
 //			@Override

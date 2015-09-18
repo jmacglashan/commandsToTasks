@@ -1,12 +1,12 @@
 package commands.model3.weaklysupervisedinterface;
 
 import behavior.irl.DGDIRLFactory;
-import burlap.behavior.statehashing.StateHashFactory;
 import burlap.datastructures.HashedAggregator;
-import burlap.oomdp.auxiliary.StateParser;
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.GroundedProp;
-import burlap.oomdp.core.State;
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.legacy.StateParser;
+import burlap.oomdp.statehashing.HashableStateFactory;
 import commands.data.TrainingElement;
 import commands.data.Trajectory;
 import commands.model3.GPConjunction;
@@ -33,8 +33,8 @@ import java.util.*;
  * A controller for managing inference steps in a grounding language to reward function problem where the language
  * model is specified by a {@link commands.model3.weaklysupervisedinterface.WeaklySupervisedLanguageModel}.
  * This controller also provides the means to cache IRL results and load cached IRL results for increased reasoning speed
- * using the method {@link #cacheIRLProbabilitiesToDisk(String, burlap.oomdp.auxiliary.StateParser)} and
- * {@link #loadIRLProbabiltiesFromDisk(String, burlap.oomdp.auxiliary.StateParser)}, respectively.
+ * using the method {@link #cacheIRLProbabilitiesToDisk(String, burlap.oomdp.legacy.StateParser)} and
+ * {@link #loadIRLProbabiltiesFromDisk(String, burlap.oomdp.legacy.StateParser)}, respectively.
  *
  *
  * @author James MacGlashan.
@@ -54,13 +54,13 @@ public class WeaklySupervisedController {
 	protected List<WeaklySupervisedTrainingInstance> weaklySupervisedTrainingDataset;
 
 	protected Domain domain;
-	protected StateHashFactory hashingFactory;
+	protected HashableStateFactory hashingFactory;
 
 	protected boolean hasPerformedIRL = false;
 
 
 
-	public WeaklySupervisedController(Domain domain, List<GPConjunction> taskGoals, StateHashFactory hashingFactory, boolean addTermainateActionForIRL){
+	public WeaklySupervisedController(Domain domain, List<GPConjunction> taskGoals, HashableStateFactory hashingFactory, boolean addTermainateActionForIRL){
 
 		this.domain = domain;
 		this.hashingFactory = hashingFactory;
@@ -107,7 +107,7 @@ public class WeaklySupervisedController {
 		return domain;
 	}
 
-	public StateHashFactory getHashingFactory(){
+	public HashableStateFactory getHashingFactory(){
 		return this.hashingFactory;
 	}
 

@@ -1,17 +1,20 @@
 package behavior.planning.sokoamdp;
 
 import behavior.planning.PolicyGenerator;
+import burlap.behavior.policy.Policy;
 import burlap.behavior.singleagent.EpisodeAnalysis;
-import burlap.behavior.singleagent.Policy;
+
 import burlap.behavior.singleagent.planning.deterministic.DDPlannerPolicy;
-import burlap.behavior.statehashing.DiscreteStateHashFactory;
-import burlap.behavior.statehashing.StateHashFactory;
+
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.GroundedProp;
-import burlap.oomdp.core.State;
+
 import burlap.oomdp.core.TerminalFunction;
+import burlap.oomdp.core.states.State;
 import burlap.oomdp.singleagent.RewardFunction;
 import burlap.oomdp.singleagent.common.UniformCostRF;
+import burlap.oomdp.statehashing.HashableStateFactory;
+import burlap.oomdp.statehashing.SimpleHashableStateFactory;
 import commands.model3.TrajectoryModule;
 import domain.singleagent.sokoban2.Sokoban2Domain;
 
@@ -32,7 +35,7 @@ public class SokoAMDPPlannerPolicyGen implements PolicyGenerator {
 	}
 
 	@Override
-	public Policy getPolicy(Domain domain, State initialState, RewardFunction rf, TerminalFunction tf, StateHashFactory hashingFactory) {
+	public Policy getPolicy(Domain domain, State initialState, RewardFunction rf, TerminalFunction tf, HashableStateFactory hashingFactory) {
 
 		SokoAMDPPlanner planner = new SokoAMDPPlanner(domain, this.adomain, tf, hashingFactory);
 		planner.planFromState(initialState);
@@ -57,7 +60,7 @@ public class SokoAMDPPlannerPolicyGen implements PolicyGenerator {
 
 		SokoAMDPPlannerPolicyGen pgen = new SokoAMDPPlannerPolicyGen();
 
-		Policy p = pgen.getPolicy(domain, s, new UniformCostRF(), goalTF, new DiscreteStateHashFactory());
+		Policy p = pgen.getPolicy(domain, s, new UniformCostRF(), goalTF, new SimpleHashableStateFactory(false));
 
 		EpisodeAnalysis ea = p.evaluateBehavior(s, new UniformCostRF(), goalTF, 100);
 

@@ -3,13 +3,14 @@ package commands.model3;
 import behavior.irl.TabularIRL;
 import behavior.irl.TabularIRL.TaskCondition;
 import behavior.irl.TabularIRLPlannerFactory;
-import burlap.behavior.statehashing.StateHashFactory;
-import burlap.oomdp.auxiliary.StateParser;
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.GroundedProp;
-import burlap.oomdp.core.State;
+
 import burlap.oomdp.core.TerminalFunction;
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.legacy.StateParser;
 import burlap.oomdp.singleagent.GroundedAction;
+import burlap.oomdp.statehashing.HashableStateFactory;
 import commands.data.Trajectory;
 import commands.data.TrajectoryParser;
 import commands.model3.TaskModule.ConjunctiveGroundedPropRF;
@@ -205,7 +206,7 @@ public class TrajectoryModule extends GMModule{
 	}
 
 
-	public void readCacheFromDisk(String pathToCacheDir, Domain domain, StateParser sp, StateHashFactory hashingFactory){
+	public void readCacheFromDisk(String pathToCacheDir, Domain domain, StateParser sp, HashableStateFactory hashingFactory){
 
 		TrajectoryParser tp = new TrajectoryParser(domain,sp);
 

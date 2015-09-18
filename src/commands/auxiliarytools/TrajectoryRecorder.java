@@ -34,10 +34,13 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import burlap.oomdp.auxiliary.StateGenerator;
-import burlap.oomdp.auxiliary.StateParser;
+
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.PropositionalFunction;
-import burlap.oomdp.core.State;
+
+import burlap.oomdp.core.states.MutableState;
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.legacy.StateParser;
 import burlap.oomdp.singleagent.Action;
 import burlap.oomdp.singleagent.GroundedAction;
 import burlap.oomdp.visualizer.Visualizer;
@@ -380,8 +383,10 @@ private static final long serialVersionUID = 1L;
 				System.out.println("Unknown action: " + actionName);
 			}
 			else{
-				State nextState = action.performAction(curState, params);
-				GroundedAction ga = new GroundedAction(action, params);
+
+				GroundedAction ga = action.getAssociatedGroundedAction();
+				ga.initParamsWithStringRep(params);
+				State nextState = action.performAction(curState, ga);
 				trajectory.addActionStateTransition(ga, nextState);
 				
 				//now update the list
@@ -571,7 +576,7 @@ private static final long serialVersionUID = 1L;
 	       			trajectory = trainEl.trajectory;
 					//System.out.println("Finished Loading File.");
 					
-					painter.updateState(new State()); //clear screen
+					painter.updateState(new MutableState()); //clear screen
 					this.setIterationListData();
 					
 					selectedOnNewTrajectory = false;

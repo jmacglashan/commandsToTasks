@@ -1,7 +1,8 @@
 package logicalexpressions;
 
 import burlap.oomdp.core.Domain;
-import burlap.oomdp.core.State;
+import burlap.oomdp.core.states.State;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,8 +44,8 @@ public abstract class LogicalExpression implements java.io.Serializable{
 	public abstract LogicalExpression duplicate();
 
 	/**
-	 * Evaluates whether this logical expression is true in the given OO-MDP {@link burlap.oomdp.core.State}.
-	 * @param s that {@link burlap.oomdp.core.State} in which to evaluate this expression.
+	 * Evaluates whether this logical expression is true in the given OO-MDP {@link burlap.oomdp.core.states.State}.
+	 * @param s that {@link burlap.oomdp.core.states.State} in which to evaluate this expression.
 	 * @return true if this expression is true in s; false otherwise.
 	 */
 	public abstract boolean evaluateIn(State s);

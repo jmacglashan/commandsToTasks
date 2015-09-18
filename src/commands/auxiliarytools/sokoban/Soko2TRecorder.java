@@ -1,10 +1,11 @@
 package commands.auxiliarytools.sokoban;
 
+import burlap.oomdp.legacy.StateParser;
 import commands.auxiliarytools.TrajectoryRecorder;
 import commands.auxiliarytools.sokoban.soko2turkexamples.Soko2Turk1;
 
 import burlap.oomdp.auxiliary.StateGenerator;
-import burlap.oomdp.auxiliary.StateParser;
+
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.visualizer.Visualizer;
 import domain.singleagent.sokoban2.Sokoban2Domain;

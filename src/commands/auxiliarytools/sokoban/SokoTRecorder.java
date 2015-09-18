@@ -1,8 +1,9 @@
 package commands.auxiliarytools.sokoban;
 
 import burlap.oomdp.auxiliary.StateGenerator;
-import burlap.oomdp.auxiliary.StateParser;
+
 import burlap.oomdp.core.Domain;
+import burlap.oomdp.legacy.StateParser;
 import burlap.oomdp.visualizer.Visualizer;
 
 import commands.auxiliarytools.TrajectoryRecorder;

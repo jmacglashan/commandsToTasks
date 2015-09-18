@@ -5,7 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import burlap.oomdp.core.GroundedProp;
-import burlap.oomdp.core.State;
+import burlap.oomdp.core.states.State;
+
 
 public class GPConjunction implements Iterable<GroundedProp>{
 	public List<GroundedProp> gps;

@@ -3,11 +3,12 @@ package commands.auxiliarytools.sokoban.soko2turkexamples;
 import java.util.ArrayList;
 import java.util.List;
 
+import burlap.oomdp.core.states.State;
 import domain.singleagent.sokoban2.Sokoban2Domain;
 
 import burlap.oomdp.auxiliary.StateGenerator;
 import burlap.oomdp.core.Domain;
-import burlap.oomdp.core.State;
+
 
 
 /**

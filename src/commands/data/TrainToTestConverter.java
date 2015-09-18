@@ -3,8 +3,9 @@ package commands.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import burlap.oomdp.auxiliary.StateParser;
+
 import burlap.oomdp.core.Domain;
+import burlap.oomdp.legacy.StateParser;
 
 public class TrainToTestConverter {
 

@@ -1,6 +1,7 @@
 package commands.data;
 
-import burlap.oomdp.core.State;
+
+import burlap.oomdp.core.states.State;
 
 public class TestElement {
 	public String testIdenitifier;

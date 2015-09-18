@@ -4,15 +4,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import burlap.oomdp.core.states.State;
+import burlap.oomdp.statehashing.HashableStateFactory;
+import burlap.oomdp.statehashing.SimpleHashableStateFactory;
 import generativemodel.GMQueryResult;
 import generativemodel.GenerativeModel;
 import generativemodel.RVariable;
 import generativemodel.RVariableValue;
-import burlap.behavior.statehashing.NameDependentStateHashFactory;
-import burlap.behavior.statehashing.StateHashFactory;
+
 import burlap.oomdp.core.Domain;
 import burlap.oomdp.core.GroundedProp;
-import burlap.oomdp.core.State;
+
 
 import commands.model3.TaskModule;
 import commands.model3.TaskModule.LiftedVarValue;
@@ -46,7 +48,7 @@ public class Model3Tests {
 		ta.addLiftedVarValue(aToR);
 		ta.addLiftedVarValue(bToR);
 		
-		StateHashFactory hashingFactory = new NameDependentStateHashFactory();
+		HashableStateFactory hashingFactory = new SimpleHashableStateFactory(false);
 		
 		StateRVValue sval = new StateRVValue(s, hashingFactory, gm.getRVarWithName(TaskModule.STATENAME));
 		

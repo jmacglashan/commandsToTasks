@@ -2,15 +2,17 @@ package behavior.planning;
 
 import java.util.List;
 
-import burlap.behavior.singleagent.Policy;
-import burlap.behavior.singleagent.planning.OOMDPPlanner;
-import burlap.behavior.singleagent.planning.PlannerDerivedPolicy;
-import burlap.behavior.singleagent.planning.commonpolicies.BoltzmannQPolicy;
-import burlap.behavior.singleagent.planning.commonpolicies.GreedyQPolicy;
-import burlap.oomdp.core.AbstractGroundedAction;
-import burlap.oomdp.core.State;
 
-public class DynamicDVIPolicy extends Policy implements PlannerDerivedPolicy {
+import burlap.behavior.policy.BoltzmannQPolicy;
+import burlap.behavior.policy.GreedyQPolicy;
+import burlap.behavior.policy.Policy;
+import burlap.behavior.policy.SolverDerivedPolicy;
+import burlap.behavior.singleagent.MDPSolverInterface;
+import burlap.oomdp.core.AbstractGroundedAction;
+import burlap.oomdp.core.states.State;
+
+
+public class DynamicDVIPolicy extends Policy implements SolverDerivedPolicy {
 
 	protected DeterministicGoalDirectedPartialVI		planner;
 	protected Policy									vfPolicy;
@@ -24,11 +26,11 @@ public class DynamicDVIPolicy extends Policy implements PlannerDerivedPolicy {
 			this.vfPolicy = new BoltzmannQPolicy(planner, boltzTemp);
 		}
 	}
-	
+
 	@Override
-	public void setPlanner(OOMDPPlanner planner) {
+	public void setSolver(MDPSolverInterface planner) {
 		this.planner = (DeterministicGoalDirectedPartialVI)planner;
-		((PlannerDerivedPolicy)this.vfPolicy).setPlanner(planner);
+		((SolverDerivedPolicy)this.vfPolicy).setSolver(planner);
 	}
 
 	@Override

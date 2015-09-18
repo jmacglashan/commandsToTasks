@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import burlap.behavior.statehashing.StateHashFactory;
 
+import burlap.oomdp.statehashing.HashableState;
+import burlap.oomdp.statehashing.HashableStateFactory;
 import commands.model3.Model3Controller;
 import commands.model3.StringValue;
 import commands.model3.TaskModule;
@@ -27,7 +28,7 @@ import generativemodel.RVariableValue;
 public class BagOfWordsEMModule extends EMModule {
 
 	protected List<Map<TopicVectorRVal, Double>>		jointTopicAndTrajectory;
-	protected StateHashFactory							hashingFactory;
+	protected HashableStateFactory						hashingFactory;
 	
 	protected double 									wordAdditiveConstant = 0.1;
 	
@@ -36,7 +37,7 @@ public class BagOfWordsEMModule extends EMModule {
 	
 	protected boolean									needsAggreatorReset = true;
 	
-	public BagOfWordsEMModule(StateHashFactory hashingFactory){
+	public BagOfWordsEMModule(HashableStateFactory hashingFactory){
 		this.jointTopicAndTrajectory = new ArrayList<Map<TopicVectorRVal,Double>>();
 		this.hashingFactory = hashingFactory;
 		
